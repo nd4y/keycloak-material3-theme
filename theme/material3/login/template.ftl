@@ -1,6 +1,6 @@
 <#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false>
 <!DOCTYPE html>
-<html class="${properties.kcHtmlClass!}" lang="${lang}"<#if realm.internationalizationEnabled> dir="${(locale.rtl)?then('rtl','ltr')}"</#if>>
+<html class="${properties.kcHtmlClass!}" lang="${(lang)!(locale.currentLanguageTag)!'en'}"<#if realm.internationalizationEnabled> dir="${((locale.rtl)!false)?then('rtl','ltr')}"</#if>>
 
 <head>
     <meta charset="utf-8">
@@ -73,7 +73,7 @@
             link.setAttribute("aria-disabled", "true");
         });
     </script>
-    <#if authenticationSession??>
+    <#if authenticationSession?? && (authenticationSession.authSessionIdHash)??>
         <script type="module">
             import { checkAuthSession } from "${url.resourcesPath}/js/authChecker.js";
 
@@ -84,7 +84,7 @@
     </#if>
 </head>
 
-<body class="${properties.kcBodyClass!} ${bodyClass}" data-page-id="login-${pageId}">
+<body class="${properties.kcBodyClass!} ${bodyClass}" data-page-id="login-${(pageId)!''}">
 <div class="m3-shell">
     <#assign brandName = (realm.displayName!'')>
     <aside class="m3-brand" aria-hidden="true">

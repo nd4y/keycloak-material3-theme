@@ -23,7 +23,7 @@
     </script>
     <title>${msg("loginTitle",(realm.displayName!''))}</title>
     <#-- ?v= is the icon revision — bump when favicon.svg changes -->
-    <link rel="icon" href="${url.resourcesPath}/img/favicon.svg?v=2" type="image/svg+xml"/>
+    <link rel="icon" href="${url.resourcesPath}/img/favicon.svg?v=3" type="image/svg+xml"/>
     <#if properties.stylesCommon?has_content>
         <#list properties.stylesCommon?split(' ') as style>
             <link href="${url.resourcesCommonPath}/${style}" rel="stylesheet" />

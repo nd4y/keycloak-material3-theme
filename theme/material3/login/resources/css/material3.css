@@ -33,10 +33,14 @@
   --m3-on-info-container: #0F2A5C;
   --m3-social-chip: #F3EDF7;
   --m3-shadow: 0 10px 34px rgba(30, 20, 60, .12);
+  --m3-good: #2E7D32;
+  --m3-toggle-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 13A8 8 0 1 1 11 4a6.5 6.5 0 0 0 9 9z'/%3E%3C/svg%3E");
 }
 
+/* Dark tokens apply from the system preference (unless the user forced light)
+   and from the explicit toggle. Keep both blocks identical. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-m3-theme="light"]) {
     --m3-primary: #D0BCFF;
     --m3-on-primary: #381E72;
     --m3-primary-container: #4F378B;
@@ -65,7 +69,41 @@
     --m3-on-info-container: #D6E2FB;
     --m3-social-chip: #E6E0E9;
     --m3-shadow: 0 10px 34px rgba(0, 0, 0, .45);
+    --m3-good: #81C784;
+    --m3-toggle-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4'/%3E%3C/svg%3E");
   }
+}
+:root[data-m3-theme="dark"] {
+  --m3-primary: #D0BCFF;
+  --m3-on-primary: #381E72;
+  --m3-primary-container: #4F378B;
+  --m3-on-primary-container: #EADDFF;
+  --m3-secondary-container: #4A4458;
+  --m3-on-secondary-container: #E8DEF8;
+  --m3-tertiary-container: #633B48;
+  --m3-on-tertiary-container: #FFD8E4;
+  --m3-surface: #141218;
+  --m3-surface-c1: #1D1B20;
+  --m3-surface-c2: #211F26;
+  --m3-surface-c3: #2B2930;
+  --m3-surface-c4: #36343B;
+  --m3-on-surface: #E6E0E9;
+  --m3-on-surface-variant: #CAC4D0;
+  --m3-outline: #938F99;
+  --m3-outline-variant: #49454F;
+  --m3-error: #F2B8B5;
+  --m3-error-container: #8C1D18;
+  --m3-on-error-container: #F9DEDC;
+  --m3-success-container: #1E4620;
+  --m3-on-success-container: #C6EEC7;
+  --m3-warning-container: #4E3B00;
+  --m3-on-warning-container: #F8E3A3;
+  --m3-info-container: #17356B;
+  --m3-on-info-container: #D6E2FB;
+  --m3-social-chip: #E6E0E9;
+  --m3-shadow: 0 10px 34px rgba(0, 0, 0, .45);
+  --m3-good: #81C784;
+  --m3-toggle-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4'/%3E%3C/svg%3E");
 }
 
 /* ── Base ─────────────────────────────────────────────────────────────── */
@@ -164,6 +202,26 @@ a:hover { text-decoration: underline; }
   color: var(--m3-on-tertiary-container);
   display: flex; align-items: center; justify-content: center;
   font-size: 20px; font-weight: 800;
+}
+
+.m3-card-top-actions { display: flex; align-items: center; gap: 8px; }
+
+/* Theme toggle */
+.m3-theme-toggle {
+  width: 36px; height: 36px;
+  border: 1px solid var(--m3-outline-variant);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.m3-theme-toggle:hover { background: var(--m3-surface-c2); }
+.m3-theme-toggle::before {
+  content: "";
+  width: 18px; height: 18px;
+  background: var(--m3-on-surface-variant);
+  -webkit-mask: var(--m3-toggle-mask) center / contain no-repeat;
+  mask: var(--m3-toggle-mask) center / contain no-repeat;
 }
 
 /* Locale menu (menu-button-links.js contract: button + [role=menu]) */
@@ -319,12 +377,9 @@ a:hover { text-decoration: underline; }
 }
 .m3-icon-check {
   width: 15px; height: 15px;
-  background: #2E7D32;
+  background: var(--m3-good);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 12.5 5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 12.5 5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat;
-}
-@media (prefers-color-scheme: dark) {
-  .m3-icon-check { background: #81C784; }
 }
 
 /* ── Divider + social providers ───────────────────────────────────────── */

@@ -1,13 +1,73 @@
-name: Build theme image
+name: Test & build theme image
 
 on:
   push:
     branches: [main]
     tags: ["v*"]
+  pull_request:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - keycloak: "26.3"
+            expect_passkey: "1"
+          - keycloak: "26.0"
+            expect_passkey: "0"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare realm import
+        run: |
+          if [ "${{ matrix.expect_passkey }}" = "0" ]; then
+            python3 -c "import json; d = json.load(open('dev/demo-realm.json')); d.pop('webAuthnPolicyPasswordlessPasskeysEnabled', None); json.dump(d, open('/tmp/demo-realm.json', 'w'))"
+          else
+            cp dev/demo-realm.json /tmp/demo-realm.json
+          fi
+
+      - name: Start Keycloak ${{ matrix.keycloak }}
+        run: |
+          docker run -d --name kc -p 8080:8080 \
+            -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+            -e KC_FEATURES=passkeys \
+            -v $PWD/theme/material3:/opt/keycloak/themes/material3:ro \
+            -v /tmp/demo-realm.json:/opt/keycloak/data/import/demo-realm.json:ro \
+            quay.io/keycloak/keycloak:${{ matrix.keycloak }} start-dev --import-realm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+
+      - name: Wait for Keycloak
+        run: |
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/realms/demo/account/ || true)
+            [ "$code" = "200" ] && exit 0
+            sleep 3
+          done
+          echo "Keycloak did not become ready"; docker logs kc | tail -50; exit 1
+
+      - name: Run theme tests
+        env:
+          EXPECT_PASSKEY: ${{ matrix.expect_passkey }}
+        run: python dev/test_theme.py
+
+      - name: Keycloak logs on failure
+        if: failure()
+        run: docker logs kc | tail -100
+
   build:
     runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push'
     permissions:
       contents: read
       packages: write

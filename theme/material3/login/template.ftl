@@ -13,6 +13,14 @@
             <meta name="${meta?split('==')[0]}" content="${meta?split('==')[1]}"/>
         </#list>
     </#if>
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem("m3-theme");
+                if (t === "light" || t === "dark") document.documentElement.setAttribute("data-m3-theme", t);
+            } catch (e) { /* storage unavailable */ }
+        })();
+    </script>
     <title>${msg("loginTitle",(realm.displayName!''))}</title>
     <link rel="icon" href="${url.resourcesPath}/img/favicon.svg" type="image/svg+xml"/>
     <#if properties.stylesCommon?has_content>
@@ -38,6 +46,20 @@
         }
     </script>
     <script src="${url.resourcesPath}/js/menu-button-links.js" type="module"></script>
+    <script type="module">
+        document.addEventListener("DOMContentLoaded", () => {
+            const btn = document.getElementById("m3-theme-toggle");
+            if (!btn) return;
+            btn.addEventListener("click", () => {
+                const root = document.documentElement;
+                const current = root.getAttribute("data-m3-theme")
+                    || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+                const next = current === "dark" ? "light" : "dark";
+                root.setAttribute("data-m3-theme", next);
+                try { localStorage.setItem("m3-theme", next); } catch (e) { /* ignore */ }
+            });
+        });
+    </script>
     <#if scripts??>
         <#list scripts as script>
             <script src="${script}" type="text/javascript"></script>
@@ -100,6 +122,8 @@
         <div class="m3-card">
             <div class="m3-card-top">
                 <div class="m3-logo" aria-hidden="true"><#if brandName?has_content>${brandName[0]?upper_case}<#else>K</#if></div>
+                <div class="m3-card-top-actions">
+                <button type="button" id="m3-theme-toggle" class="m3-theme-toggle" aria-label="${msg("m3ThemeToggle")}" title="${msg("m3ThemeToggle")}"></button>
                 <#if realm.internationalizationEnabled && locale.supported?size gt 1>
                     <div class="menu-button-links m3-locale" id="kc-locale">
                         <button tabindex="1" id="kc-current-locale-link" aria-label="${msg("languages")}" aria-haspopup="true" aria-expanded="false" aria-controls="language-switch1">
@@ -116,6 +140,7 @@
                         </ul>
                     </div>
                 </#if>
+                </div>
             </div>
 
             <header class="m3-header">

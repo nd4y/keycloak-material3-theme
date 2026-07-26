@@ -1,0 +1,181 @@
+/*
+ * Material 3 runtime for the Keycloak Account Console (keycloak.v3).
+ *
+ * 1. Color-scheme toggle: overrides the console's automatic dark-mode class,
+ *    persists the choice in localStorage under "m3-theme" (shared with the
+ *    login theme) and keeps re-asserting it over the built-in matchMedia
+ *    listener.
+ * 2. Material navigation: replaces the PatternFly sidebar with an M3
+ *    navigation rail (desktop) / navigation bar (phones). Items are collected
+ *    from the real PF nav, so new console sections appear automatically.
+ */
+
+const THEME_KEY = "m3-theme";
+const DARK_CLASS = "pf-v5-theme-dark";
+
+/* ── icons (24px, stroke-based) ─────────────────────────────────────────── */
+
+const ICONS = {
+  person: '<circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>',
+  fingerprint: '<path d="M5 8.6a8 8 0 0 1 14 0"/><path d="M7.5 11.8a4.8 4.8 0 0 1 9 0c0 2.6-.4 5-1.3 7.2"/><path d="M12 11.8v2.7c0 2.3-.5 4.4-1.4 6.3"/><path d="M9.6 15.5c-.2 1.8-.7 3.4-1.5 5"/>',
+  devices: '<rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8"/>',
+  link: '<path d="M10 13a4 4 0 0 0 6 .5l3-3a4 4 0 0 0-5.7-5.6l-1.6 1.6"/><path d="M14 11a4 4 0 0 0-6-.5l-3 3a4 4 0 0 0 5.7 5.6l1.6-1.6"/>',
+  grid: '<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  people: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 19a6.5 6.5 0 0 1 13 0"/><path d="M16 5.5a3.5 3.5 0 0 1 0 6.6M17.5 13.4a6.5 6.5 0 0 1 4 5.6"/>',
+  folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  dot: '<circle cx="12" cy="12" r="9.25"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/>',
+  moon: '<path d="M20 13A8 8 0 1 1 11 4a6.5 6.5 0 0 0 9 9z"/>',
+};
+
+function iconSvg(name) {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ICONS.dot}</svg>`;
+}
+
+function iconFor(href) {
+  const h = href || "";
+  if (h.includes("signing-in")) return "fingerprint";
+  if (h.includes("device-activity")) return "devices";
+  if (h.includes("linked-accounts")) return "link";
+  if (h.includes("applications")) return "grid";
+  if (h.includes("groups") || h.includes("organizations")) return "people";
+  if (h.includes("resources")) return "folder";
+  if (h.includes("personal-info") || /\/account\/?$/.test(h)) return "person";
+  return "dot";
+}
+
+/* ── color-scheme preference ────────────────────────────────────────────── */
+
+function storedTheme() {
+  try {
+    const t = localStorage.getItem(THEME_KEY);
+    return t === "light" || t === "dark" ? t : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function effectiveTheme() {
+  return storedTheme() || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+}
+
+let applying = false;
+function applyTheme() {
+  applying = true;
+  document.documentElement.classList.toggle(DARK_CLASS, effectiveTheme() === "dark");
+  applying = false;
+  const btn = document.getElementById("m3-theme-toggle");
+  if (btn) btn.innerHTML = iconSvg(effectiveTheme() === "dark" ? "sun" : "moon");
+}
+
+function initTheme() {
+  applyTheme();
+  // The console's own script toggles the class on matchMedia changes;
+  // re-assert the user's explicit choice whenever the class flips.
+  new MutationObserver(() => {
+    if (applying || !storedTheme()) return;
+    const wantDark = effectiveTheme() === "dark";
+    if (document.documentElement.classList.contains(DARK_CLASS) !== wantDark) applyTheme();
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+  const btn = document.createElement("button");
+  btn.id = "m3-theme-toggle";
+  btn.type = "button";
+  btn.className = "m3-theme-toggle";
+  btn.setAttribute("aria-label", "Switch color theme");
+  btn.title = "Switch color theme";
+  btn.addEventListener("click", () => {
+    const next = effectiveTheme() === "dark" ? "light" : "dark";
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
+    applyTheme();
+  });
+  document.body.appendChild(btn);
+  applyTheme();
+}
+
+/* ── navigation rail / bar ──────────────────────────────────────────────── */
+
+function collectNavLinks(nav) {
+  // Expand collapsed groups first so nested links exist in the DOM.
+  nav.querySelectorAll('button[aria-expanded="false"]').forEach((b) => b.click());
+  const links = [...nav.querySelectorAll("a.pf-v5-c-nav__link[href]")];
+  const seen = new Set();
+  return links
+    .map((a) => ({ href: a.getAttribute("href"), label: a.textContent.trim() }))
+    .filter((l) => l.href && l.label && !seen.has(l.href) && seen.add(l.href));
+}
+
+function markActive(rail) {
+  const path = location.pathname.replace(/\/$/, "");
+  let best = null;
+  rail.querySelectorAll("a.m3-rail-item").forEach((a) => {
+    a.removeAttribute("data-active");
+    const href = a.getAttribute("href").replace(/\/$/, "");
+    if ((path === href || path.startsWith(href + "/") || path.startsWith(href + "#"))
+        && (!best || href.length > best.getAttribute("href").replace(/\/$/, "").length)) {
+      best = a;
+    }
+  });
+  if (!best && rail.firstElementChild) best = rail.firstElementChild;
+  if (best) best.setAttribute("data-active", "");
+}
+
+function buildRail(nav) {
+  const items = collectNavLinks(nav);
+  if (items.length < 2) return false;
+  const rail = document.createElement("nav");
+  rail.className = "m3-rail";
+  rail.setAttribute("aria-label", "Account navigation");
+  rail.innerHTML = items
+    .map(
+      (l) =>
+        `<a class="m3-rail-item" href="${l.href}"><span class="m3-rail-ind">${iconSvg(iconFor(l.href))}</span><span class="m3-rail-label">${l.label}</span></a>`
+    )
+    .join("");
+  // Navigate through the SPA router instead of full page loads.
+  rail.addEventListener("click", (e) => {
+    const a = e.target.closest("a.m3-rail-item");
+    if (!a) return;
+    e.preventDefault();
+    history.pushState({}, "", a.getAttribute("href"));
+    dispatchEvent(new PopStateEvent("popstate"));
+    markActive(rail);
+  });
+  document.body.appendChild(rail);
+  markActive(rail);
+  // Track console-initiated navigation too.
+  for (const fn of ["pushState", "replaceState"]) {
+    const orig = history[fn].bind(history);
+    history[fn] = (...args) => {
+      const r = orig(...args);
+      markActive(rail);
+      return r;
+    };
+  }
+  addEventListener("popstate", () => markActive(rail));
+  document.documentElement.classList.add("m3-rail-on");
+  return true;
+}
+
+function initRail() {
+  const tryBuild = () => {
+    const nav = document.querySelector(".pf-v5-c-nav");
+    return nav ? buildRail(nav) : false;
+  };
+  if (tryBuild()) return;
+  const obs = new MutationObserver(() => {
+    if (tryBuild()) obs.disconnect();
+  });
+  obs.observe(document.body, { childList: true, subtree: true });
+  setTimeout(() => obs.disconnect(), 20000);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    initTheme();
+    initRail();
+  });
+} else {
+  initTheme();
+  initRail();
+}

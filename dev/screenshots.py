@@ -28,7 +28,7 @@ def login(page):
     page.fill("#username", "demo")
     page.fill("#password", "demo1234")
     page.click("#kc-login")
-    page.wait_for_selector(".pf-v5-c-nav", timeout=20000)
+    page.wait_for_selector(".m3-rail", timeout=25000)
     page.wait_for_timeout(1200)
 
 

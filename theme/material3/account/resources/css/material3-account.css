@@ -116,35 +116,117 @@ body {
 .pf-v5-c-masthead .pf-v5-c-menu-toggle__toggle-icon,
 .pf-v5-c-masthead .pf-v5-c-menu-toggle__controls { color: var(--m3-on-secondary-container); }
 
-/* ── Sidebar navigation: M3 pill items ────────────────────────────────── */
+/* ── Navigation: M3 rail (desktop) / navigation bar (phones) ──────────────
+   The PF sidebar is replaced by a rail built in js/material3.js; the html
+   element gets .m3-rail-on once the rail exists, so if JS ever fails the
+   stock sidebar remains usable. ── */
 
-.pf-v5-c-page__sidebar {
-  --pf-v5-c-page__sidebar--BackgroundColor: var(--m3-surface-c1);
-  border-right: 0;
+.m3-rail-on .pf-v5-c-page__sidebar,
+.m3-rail-on .pf-v5-c-masthead__toggle,
+.m3-rail-on #nav-toggle { display: none !important; }
+
+.m3-rail {
+  position: fixed;
+  z-index: 250;
+  left: 0;
+  top: 72px;
+  bottom: 0;
+  width: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 16px;
+  background: var(--m3-surface);
 }
-.pf-v5-c-page__sidebar-body { padding-inline: 10px; }
 
-.pf-v5-c-nav__link {
-  border-radius: 20px;
-  margin-block: 2px;
-  font-size: 14.5px;
+.m3-rail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 88px;
+  padding: 4px 2px;
+  text-decoration: none;
   color: var(--m3-on-surface-variant);
-  transition: background .2s, border-radius .3s cubic-bezier(.3, 1.4, .4, 1);
 }
-.pf-v5-c-nav__link:hover {
-  background: var(--m3-surface-c3);
-  border-radius: 13px;
-  color: var(--m3-on-surface);
+.m3-rail-item:hover { text-decoration: none; color: var(--m3-on-surface); }
+
+.m3-rail-ind {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 32px;
+  border-radius: 16px;
+  transition: background .2s;
 }
-.pf-v5-c-nav__item.pf-m-current > .pf-v5-c-nav__link,
-.pf-v5-c-nav__link.pf-m-current {
+.m3-rail-ind svg { width: 22px; height: 22px; }
+.m3-rail-item:hover .m3-rail-ind { background: var(--m3-surface-c3); }
+.m3-rail-item[data-active] { color: var(--m3-on-surface); }
+.m3-rail-item[data-active] .m3-rail-ind {
   background: var(--m3-secondary-container);
   color: var(--m3-on-secondary-container);
-  font-weight: 600;
 }
-.pf-v5-c-nav__item.pf-m-current > .pf-v5-c-nav__link::before,
-.pf-v5-c-nav__link.pf-m-current::before { border: 0; }
-.pf-v5-c-nav__link::after, .pf-v5-c-nav__link::before { border: 0 !important; }
+
+.m3-rail-label {
+  font-size: 11.5px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.25;
+  max-width: 88px;
+}
+.m3-rail-item[data-active] .m3-rail-label { font-weight: 700; }
+
+.m3-rail-on .pf-v5-c-page__main { padding-left: 96px; }
+
+@media (max-width: 767px) {
+  .m3-rail {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-start;
+    gap: 0;
+    padding: 8px 4px calc(10px + env(safe-area-inset-bottom));
+    background: var(--m3-surface-c1);
+    border-top: 1px solid var(--m3-outline-variant);
+  }
+  .m3-rail-item { width: auto; flex: 1 1 0; min-width: 0; }
+  .m3-rail-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .m3-rail-on .pf-v5-c-page__main { padding-left: 0; padding-bottom: 96px; }
+}
+
+/* Theme toggle (fixed, injected by js/material3.js) */
+.m3-theme-toggle {
+  position: fixed;
+  z-index: 260;
+  right: 22px;
+  bottom: 22px;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--m3-secondary-container);
+  color: var(--m3-on-secondary-container);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+}
+.m3-theme-toggle svg { width: 22px; height: 22px; }
+@media (max-width: 767px) {
+  .m3-theme-toggle { bottom: calc(96px + env(safe-area-inset-bottom)); }
+}
 
 /* ── Content area ─────────────────────────────────────────────────────── */
 
@@ -292,17 +374,44 @@ body {
   color: var(--m3-on-primary-container);
 }
 
-/* Search / filter inputs in toolbars */
+/* Search / filter inputs in toolbars → M3 filled search bar */
 .pf-v5-c-text-input-group,
 .pf-v5-theme-dark .pf-v5-c-text-input-group {
   background: var(--m3-surface-c3);
-  border-radius: 12px;
+  border-radius: 20px;
+  min-height: 40px;
+  padding-inline-start: 8px;
 }
 .pf-v5-c-text-input-group__text-input,
 .pf-v5-theme-dark .pf-v5-c-text-input-group__text-input {
   background: transparent;
   color: var(--m3-on-surface);
+  border: 0;
+  outline: none;
 }
+.pf-v5-c-text-input-group__text::before,
+.pf-v5-c-text-input-group__text::after,
+.pf-v5-theme-dark .pf-v5-c-text-input-group__text::before,
+.pf-v5-theme-dark .pf-v5-c-text-input-group__text::after {
+  border: 0 !important;
+}
+.pf-v5-c-text-input-group__icon,
+.pf-v5-theme-dark .pf-v5-c-text-input-group__icon { color: var(--m3-on-surface-variant); }
+
+/* The submit-arrow / control button next to search fields */
+.pf-v5-c-button.pf-m-control,
+.pf-v5-theme-dark .pf-v5-c-button.pf-m-control {
+  background: var(--m3-secondary-container);
+  color: var(--m3-on-secondary-container);
+  border: 0;
+  border-radius: 50%;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  margin-left: 6px;
+}
+.pf-v5-c-button.pf-m-control::after,
+.pf-v5-theme-dark .pf-v5-c-button.pf-m-control::after { border: 0 !important; }
 
 /* ── Identity-provider icons in Linked accounts ───────────────────────────
    The console renders built-in monochrome icons; swap them for the same

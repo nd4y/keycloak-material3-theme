@@ -197,6 +197,12 @@ docker compose -f dev/docker-compose.dev.yml up
 
 It runs `start-dev` with theme caching disabled, so template and CSS edits apply on refresh.
 README screenshots are generated with [`dev/screenshots.py`](dev/screenshots.py) (Playwright).
+The e2e suite ([`dev/test_theme.py`](dev/test_theme.py)) runs in CI against Keycloak 26.0 and
+26.3 before the image is built.
+
+When releasing a change to CSS or JS, bump the `?v=` query in both `theme.properties` files —
+Keycloak's `/resources/<hash>/` URLs change with the server version, not with theme content,
+so without the bump browsers keep serving month-old cached assets.
 
 ## License
 

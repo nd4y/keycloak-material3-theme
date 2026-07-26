@@ -74,13 +74,13 @@ HTML = """<!DOCTYPE html>
             transform: rotateY(-6deg) rotateX(2deg); transform-style: preserve-3d;
             filter: drop-shadow(0 70px 90px rgba(30, 20, 60, .30))
                     drop-shadow(0 14px 22px rgba(30, 20, 60, .22)); }
-  .laptop .lid { border-radius: 22px 22px 0 0; padding: 12px 12px 10px;
+  .laptop .lid { border-radius: 12px 12px 0 0; padding: 12px 12px 10px;
                  background: linear-gradient(180deg, #2a2a2e 0%, #101013 60%, #060608 100%);
                  box-shadow: inset 0 1px 1px rgba(255,255,255,.22),
                              inset 0 -1px 0 rgba(0,0,0,.6); }
-  .laptop .lid img { display: block; width: 100%; border-radius: 10px; }
+  .laptop .lid img { display: block; width: 100%; border-radius: 5px; }
   .laptop .deck { height: 30px; margin: 0 -74px; position: relative;
-                  border-radius: 4px 4px 18px 18px;
+                  border-radius: 3px 3px 10px 10px;
                   background: linear-gradient(180deg, #f2eef4 0%, #d8d2dc 45%, #aca5b2 92%, #837c89 100%);
                   box-shadow: inset 0 1px 0 rgba(255,255,255,.85),
                               inset 0 -2px 3px rgba(0,0,0,.28); }
@@ -91,26 +91,22 @@ HTML = """<!DOCTYPE html>
 
   .tablet { position: absolute; right: 60px; top: 84px; width: 480px;
             transform: rotateY(-9deg) rotateX(1.5deg);
-            border-radius: 30px; padding: 13px;
+            border-radius: 16px; padding: 13px;
             background: linear-gradient(145deg, #34343a 0%, #131316 55%, #08080a 100%);
             box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.14),
                         0 60px 90px rgba(30, 20, 60, .34),
                         0 12px 24px rgba(30, 20, 60, .25); }
-  .tablet img { display: block; width: 100%; border-radius: 18px; }
+  .tablet img { display: block; width: 100%; border-radius: 8px; }
 
   .phone { position: absolute; right: 352px; bottom: 104px; width: 305px;
            transform: rotateY(5deg) rotateZ(-2deg);
-           border-radius: 50px; padding: 11px;
+           border-radius: 22px; padding: 11px;
            background: linear-gradient(150deg, #3c3c42 0%, #17171a 50%, #050507 100%);
            box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.18),
                        0 50px 90px rgba(30, 20, 60, .42),
                        0 12px 22px rgba(30, 20, 60, .30);
            z-index: 6; }
-  .phone img { display: block; width: 100%; border-radius: 40px; }
-  .phone .cam { position: absolute; top: 24px; left: 50%; margin-left: -6px;
-                width: 12px; height: 12px; border-radius: 50%;
-                background: radial-gradient(circle at 35% 35%, #2c2c34 0%, #000 70%);
-                box-shadow: inset 0 0 2px rgba(255,255,255,.25); }
+  .phone img { display: block; width: 100%; border-radius: 14px; }
 </style></head>
 <body>
   <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -132,7 +128,7 @@ HTML = """<!DOCTYPE html>
       <div class="lid glass"><img src="__LAPTOP__" alt=""></div>
       <div class="deck"></div>
     </div>
-    <div class="phone glass"><img src="__PHONE__" alt=""><span class="cam"></span></div>
+    <div class="phone glass"><img src="__PHONE__" alt=""></div>
   </div>
 </body></html>
 """

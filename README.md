@@ -45,6 +45,10 @@ carrier image) mounted into the official Keycloak image.
   indicator that reveals the console only when fully assembled; upstream Russian
   mistranslations of "passkey" corrected; extensible identity-provider iconography.
 
+<p align="center">
+  <img src="docs/motion.gif" alt="Motion walkthrough: card entrance, password expansion, theme switching, page transitions" width="88%">
+</p>
+
 ## Feature overview
 
 - **Both user-facing UIs** — login pages and the `keycloak.v3` Account Console share one
@@ -272,8 +276,9 @@ docker compose -f dev/docker-compose.dev.yml up
 ```
 
 It runs `start-dev` with theme caching disabled, so template and CSS edits apply on refresh.
-README screenshots are generated with [`dev/screenshots.py`](dev/screenshots.py), and the
-hero image with [`dev/promo.py`](dev/promo.py) (both Playwright).
+README screenshots are generated with [`dev/screenshots.py`](dev/screenshots.py), the
+hero image with [`dev/promo.py`](dev/promo.py), and the motion walkthrough GIF with
+[`dev/motion_gif.py`](dev/motion_gif.py) (all Playwright; the GIF also needs ffmpeg).
 The e2e suite ([`dev/test_theme.py`](dev/test_theme.py)) — rendering, navigation, theming,
 i18n and the motion checks — runs in CI against Keycloak 26.0 and 26.3 before the image is
 built.

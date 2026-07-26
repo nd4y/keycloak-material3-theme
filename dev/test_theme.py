@@ -334,6 +334,99 @@ def test_account_console(browser):
     ctx.close()
 
 
+def _dur(page, sel, prop="transition-duration", pseudo=None):
+    """Longest duration (s) of a computed transition/animation on `sel`."""
+    return page.evaluate(
+        """([sel, prop, pseudo]) => {
+          const el = document.querySelector(sel);
+          if (!el) return -1;
+          const v = getComputedStyle(el, pseudo || undefined).getPropertyValue(prop);
+          return Math.max(...v.split(',').map(s => parseFloat(s) || 0));
+        }""",
+        [sel, prop, pseudo],
+    )
+
+
+def test_motion(browser):
+    """Every user-facing interaction must be animated (M3 'expressive motion'):
+    non-zero durations, M3 standard easing on big moves, and everything off
+    under prefers-reduced-motion."""
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900}, locale="en")
+    page = ctx.new_page()
+    page.goto(login_url("en"))
+    page.wait_for_selector("#kc-page-title", timeout=20000)
+
+    check("motion[login]: card entrance animation",
+          page.evaluate("getComputedStyle(document.querySelector('.m3-card')).animationName") == "m3-card-in"
+          and _dur(page, ".m3-card", "animation-duration") > 0)
+    page.evaluate("document.body.classList.add('m3-exit')")
+    check("motion[login]: card exit animation",
+          page.evaluate("getComputedStyle(document.querySelector('.m3-card')).animationName") == "m3-card-out")
+    page.evaluate("document.body.classList.remove('m3-exit')")
+    check("motion[login]: brand panel slides on breakpoint",
+          _dur(page, ".m3-brand") > 0
+          and "flex-basis" in page.evaluate(
+              "getComputedStyle(document.querySelector('.m3-brand')).transitionProperty"))
+    check("motion[login]: password details animates",
+          _dur(page, ".m3-pass-details", pseudo="::details-content") > 0)
+    check("motion[login]: details uses M3 standard easing",
+          "0.2, 0, 0, 1" in page.evaluate(
+              "getComputedStyle(document.querySelector('.m3-pass-details'), '::details-content').transitionTimingFunction"))
+    for sel, name in ((".m3-social-btn", "social button"),
+                      ("#m3-theme-toggle", "theme toggle"),
+                      ("#m3-help-btn", "help button"),
+                      (".m3-pass-details summary", "password summary"),
+                      ("#kc-current-locale-link", "locale button")):
+        if page.locator(sel).count():
+            check(f"motion[login]: {name} hover is animated", _dur(page, sel) > 0)
+    if EXPECT_PASSKEY:
+        check("motion[login]: passkey button animated", _dur(page, "#authenticateWebAuthnButton") > 0)
+    # Brand panel actually collapses (smoothly) when the window narrows.
+    w_before = page.evaluate("document.querySelector('.m3-brand').getBoundingClientRect().width")
+    page.set_viewport_size({"width": 800, "height": 900})
+    page.wait_for_timeout(600)
+    w_after = page.evaluate("document.querySelector('.m3-brand').getBoundingClientRect().width")
+    check("motion[login]: brand panel collapses below 940px",
+          w_before > 300 and w_after < 2, f"{w_before} -> {w_after}")
+    ctx.close()
+
+    # Reduced motion: all of it must switch off.
+    rm = browser.new_context(viewport={"width": 1280, "height": 900}, locale="en",
+                             reduced_motion="reduce")
+    rpage = rm.new_page()
+    rpage.goto(login_url("en"))
+    rpage.wait_for_selector("#kc-page-title", timeout=20000)
+    check("motion[login]: reduced-motion kills animations",
+          rpage.evaluate("getComputedStyle(document.querySelector('.m3-card')).animationName") == "none"
+          and _dur(rpage, ".m3-pass-details summary") == 0)
+    rm.close()
+
+    # Account console.
+    ctx = browser.new_context(viewport={"width": 1440, "height": 900}, locale="en")
+    page = ctx.new_page()
+    page.goto(f"{BASE}/realms/demo/account/")
+    page.wait_for_selector("#kc-page-title", timeout=20000)
+    page.evaluate("document.querySelector('details.m3-pass-details').open = true")
+    page.fill("#username", "demo")
+    page.fill("#password", "demo1234")
+    page.click("#kc-login")
+    page.wait_for_selector(".m3-rail", timeout=25000)
+    check("motion[account]: rail pill hover animated", _dur(page, ".m3-rail-ind") > 0)
+    check("motion[account]: theme toggle animated", _dur(page, "#m3-theme-toggle") > 0)
+    check("motion[account]: buttons animated", _dur(page, ".pf-v5-c-button") > 0)
+    check("motion[account]: drawer panel uses M3 easing",
+          _dur(page, ".m3-drawer-panel") > 0
+          and "0.2, 0, 0, 1" in page.evaluate(
+              "getComputedStyle(document.querySelector('.m3-drawer-panel')).transitionTimingFunction"))
+    check("motion[account]: page transition keyframes defined",
+          page.evaluate(
+              """[...document.styleSheets].some(s => {
+                   try { return [...s.cssRules].some(r => r.name === 'm3-page-in-kf' || (r.cssText||'').includes('m3-page')); }
+                   catch (e) { return false; }
+                 })"""))
+    ctx.close()
+
+
 def test_forced_light_on_dark_system(browser):
     """System prefers dark but the user forced light: text must stay readable
     (regression: UA canvastext painted headings white on the light ground)."""
@@ -374,6 +467,7 @@ def main():
         test_webauthn_error_message(browser)
         test_register_page(browser)
         test_account_console(browser)
+        test_motion(browser)
         test_forced_light_on_dark_system(browser)
         browser.close()
     print(f"\n{len(FAILURES)} failure(s)" if FAILURES else "\nAll tests passed")

@@ -144,13 +144,16 @@ a:hover { text-decoration: underline; }
   display: flex;
 }
 
+/* Collapses smoothly across the breakpoint (flex-basis animates; display
+   can't) — resizing the window slides the panel away instead of snapping. */
 .m3-brand {
-  display: none;
   position: relative;
   overflow: hidden;
-  flex: 1 1 44%;
+  flex: 0 0 0%;
+  min-width: 0;
   background: var(--m3-primary-container);
   color: var(--m3-on-primary-container);
+  transition: flex-basis .4s cubic-bezier(.2, 0, 0, 1);
 }
 
 .m3-blob { position: absolute; border-radius: 50%; }
@@ -208,7 +211,7 @@ body.m3-exit .m3-card {
 }
 
 @media (min-width: 940px) {
-  .m3-brand { display: block; }
+  .m3-brand { flex-basis: 44%; }
   .m3-main { background: var(--m3-surface); }
 }
 
@@ -240,6 +243,7 @@ body.m3-exit .m3-card {
   background: transparent;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
 }
 .m3-theme-toggle:hover, .m3-icon-btn:hover { background: var(--m3-surface-c2); }
 .m3-theme-toggle::before, .m3-icon-btn::before {
@@ -293,6 +297,7 @@ body[data-page-id="login-login-username"] .m3-try-another { display: none; }
   font: inherit; font-size: 13.5px;
   padding: 7px 14px;
   cursor: pointer;
+  transition: background .2s;
 }
 .m3-locale > button:hover { background: var(--m3-surface-c2); }
 .m3-locale-list {
@@ -527,6 +532,7 @@ body[data-page-id="login-login-username"] .m3-try-another { display: none; }
   font-weight: 600;
   cursor: pointer;
   user-select: none;
+  transition: background .2s;
 }
 .m3-pass-details summary::-webkit-details-marker { display: none; }
 .m3-pass-details summary:hover { background: var(--m3-surface-c2); }

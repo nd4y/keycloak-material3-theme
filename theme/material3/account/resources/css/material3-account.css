@@ -95,10 +95,12 @@ body {
 
 /* ── Masthead ─────────────────────────────────────────────────────────── */
 
+/* Transparent, so the full-height rail strip shows through beneath the
+   brand area (the masthead's own z-index sits above the fixed rail). */
 .pf-v5-c-masthead,
 .pf-v5-theme-dark .pf-v5-c-masthead {
-  --pf-v5-c-masthead--BackgroundColor: var(--m3-surface);
-  background: var(--m3-surface);
+  --pf-v5-c-masthead--BackgroundColor: transparent;
+  background: transparent;
   border-bottom: 0;
 }
 .pf-v5-c-masthead__content, .pf-v5-c-masthead__main { background: transparent; }
@@ -111,7 +113,7 @@ body {
 }
 .pf-v5-c-page__header,
 .pf-v5-theme-dark .pf-v5-c-page__header {
-  background: var(--m3-surface);
+  background: transparent;
 }
 .pf-v5-c-masthead .pf-v5-c-brand { max-height: 40px; }
 
@@ -183,15 +185,22 @@ body {
   position: fixed;
   z-index: 250;
   left: 0;
-  top: 72px;
+  top: 0;
   bottom: 0;
   width: 88px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  padding-top: 24px;
+  /* The strip runs the full viewport height (as on m3.material.io);
+     items start below the masthead line. */
+  padding-top: 88px;
   background: var(--m3-rail);
+}
+
+/* Keep the masthead content clear of the full-height strip. */
+@media (min-width: 1100px) {
+  .m3-rail-on .pf-v5-c-masthead { padding-inline-start: 112px; }
 }
 
 .m3-rail-item {
@@ -251,6 +260,7 @@ body {
   align-items: center;
   justify-content: center;
 }
+.m3-menu-btn { transition: background .2s; }
 .m3-menu-btn:hover { background: var(--m3-surface-c3); }
 .m3-menu-btn svg { width: 24px; height: 24px; }
 
@@ -318,6 +328,7 @@ body {
   align-items: center;
   justify-content: center;
   box-shadow: none;
+  transition: background .2s;
 }
 .m3-theme-toggle:hover { background: var(--m3-surface-c3); }
 .m3-theme-toggle svg { width: 22px; height: 22px; }

@@ -150,7 +150,10 @@ body {
   color: var(--m3-on-secondary-container);
 }
 .pf-v5-c-masthead .pf-v5-c-menu-toggle::before,
-.pf-v5-c-masthead .pf-v5-c-menu-toggle::after { border: 0; }
+.pf-v5-c-masthead .pf-v5-c-menu-toggle::after {
+  border: 0 !important;
+  border-radius: inherit;
+}
 .pf-v5-c-masthead .pf-v5-c-menu-toggle__toggle-icon,
 .pf-v5-c-masthead .pf-v5-c-menu-toggle__controls { color: var(--m3-on-secondary-container); }
 
@@ -344,8 +347,9 @@ body {
 
 /* ── Forms ────────────────────────────────────────────────────────────── */
 
-.pf-v5-c-form-control {
-  border-radius: 12px 12px 4px 4px;
+.pf-v5-c-form-control,
+.pf-v5-theme-dark .pf-v5-c-form-control {
+  border-radius: 12px;
   --pf-v5-c-form-control--BackgroundColor: var(--m3-surface-c3);
 }
 
@@ -355,7 +359,26 @@ body {
 
 .pf-v5-c-alert { border-radius: 16px; }
 .pf-v5-c-modal-box { border-radius: 28px; }
-.pf-v5-c-menu { border-radius: 16px; }
+
+/* Dropdown menus (user menu etc.) → M3 menu surface with rounded items */
+.pf-v5-c-menu,
+.pf-v5-theme-dark .pf-v5-c-menu {
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--m3-surface-c2);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .22);
+}
+.pf-v5-c-menu__list { padding: 6px; }
+.pf-v5-c-menu__item,
+.pf-v5-theme-dark .pf-v5-c-menu__item {
+  border-radius: 10px;
+  color: var(--m3-on-surface);
+}
+.pf-v5-c-menu__item:hover,
+.pf-v5-theme-dark .pf-v5-c-menu__item:hover {
+  background: var(--m3-surface-c3);
+  color: var(--m3-on-surface);
+}
 
 /* ── Dark-theme specificity fixes ─────────────────────────────────────────
    PatternFly's dark theme re-declares many component tokens under
@@ -524,8 +547,10 @@ body {
   justify-content: center;
   background: var(--m3-surface);
   transition: opacity .3s ease;
+  /* purely visual — must never trap clicks, whatever happens to its removal */
+  pointer-events: none;
 }
-.m3-loader-overlay.m3-loader-hide { opacity: 0; pointer-events: none; }
+.m3-loader-overlay.m3-loader-hide { opacity: 0; }
 
 .m3-loader {
   width: 44px;

@@ -194,8 +194,9 @@ function buildRail(nav) {
   }
   addEventListener("popstate", () => markActive(rail));
   document.documentElement.classList.add("m3-rail-on");
-  // The console is assembled — reveal it on the next frame.
-  requestAnimationFrame(() => requestAnimationFrame(hideLoader));
+  // The console is assembled — reveal it. setTimeout rather than rAF: frame
+  // callbacks stall in background tabs (and around view transitions).
+  setTimeout(hideLoader, 80);
   return true;
 }
 
@@ -219,14 +220,20 @@ function initRail() {
 
 function initBrand() {
   let realmName = "";
+  let accountBase = "";
   try {
-    realmName = JSON.parse(document.getElementById("environment").textContent).realm || "";
+    const env = JSON.parse(document.getElementById("environment").textContent);
+    realmName = env.realm || "";
+    accountBase = env.baseUrl || "";
   } catch (e) { /* keep default logo */ }
   if (!realmName) return;
 
   const apply = () => {
     const brand = document.querySelector(".pf-v5-c-masthead__brand");
     if (!brand || brand.querySelector(".m3-brand-mark")) return !!brand;
+    // The stock brand links to the server root (the master realm's welcome
+    // page) — point it back at this realm's Account Console instead.
+    if (accountBase && brand.tagName === "A") brand.setAttribute("href", accountBase);
     const mark = document.createElement("span");
     mark.className = "m3-brand-mark";
     mark.innerHTML =

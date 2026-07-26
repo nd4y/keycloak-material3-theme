@@ -59,6 +59,20 @@
                 try { localStorage.setItem("m3-theme", next); } catch (e) { /* ignore */ }
             });
         });
+        // Exit animation before same-origin navigations (Forgot password,
+        // Register, Back to login…). pageshow restores the card when the
+        // page comes back from the bfcache.
+        document.addEventListener("click", (e) => {
+            const a = e.target.closest("a[href]");
+            if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || a.target === "_blank") return;
+            let url;
+            try { url = new URL(a.href, location.href); } catch (err) { return; }
+            if (url.origin !== location.origin || !/^https?:$/.test(url.protocol)) return;
+            e.preventDefault();
+            document.body.classList.add("m3-exit");
+            setTimeout(() => { location.href = url.href; }, 170);
+        });
+        addEventListener("pageshow", () => document.body.classList.remove("m3-exit"));
         document.addEventListener("DOMContentLoaded", () => {
             const dlg = document.getElementById("m3-help");
             const open = document.getElementById("m3-help-btn");

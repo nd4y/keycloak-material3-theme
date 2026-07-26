@@ -191,6 +191,16 @@ a:hover { text-decoration: underline; }
   to   { opacity: 1; transform: none; }
 }
 
+/* Leaving the page (Forgot password, Register, Back to login…): a short
+   exit animation plays before the browser navigates, pairing with the
+   entrance animation above for a smooth page-to-page feel. */
+body.m3-exit .m3-card {
+  animation: m3-card-out .18s cubic-bezier(.4, 0, 1, 1) forwards;
+}
+@keyframes m3-card-out {
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
 @media (min-width: 940px) {
   .m3-brand { display: block; }
   .m3-main { background: var(--m3-surface); }
@@ -489,7 +499,6 @@ body[data-page-id="login-login-username"] .m3-try-another { display: none; }
   block-size: 0;
   overflow-y: clip;
   transition:
-    content-visibility .35s allow-discrete,
     opacity .28s ease,
     block-size .35s cubic-bezier(.2, 0, 0, 1);
 }

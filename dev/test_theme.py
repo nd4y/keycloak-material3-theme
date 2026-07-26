@@ -191,6 +191,11 @@ def test_account_console(browser):
         and page.locator(".m3-brand-badge").inner_text() == "ID",
     )
     check(
+        "account: brand links to the realm's account console",
+        "/realms/demo/account" in (page.get_attribute(".pf-v5-c-masthead__brand", "href") or ""),
+        page.get_attribute(".pf-v5-c-masthead__brand", "href"),
+    )
+    check(
         "account: PF sidebar hidden",
         page.evaluate(
             "(el => !el || getComputedStyle(el).display === 'none')(document.querySelector('.pf-v5-c-page__sidebar'))"

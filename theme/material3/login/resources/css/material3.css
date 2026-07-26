@@ -468,6 +468,25 @@ body[data-page-id="login-login-username"] .m3-try-another { display: none; }
 /* ── Collapsible password section ─────────────────────────────────────── */
 
 .m3-pass-details { margin-top: 26px; }
+
+/* Smooth expand/collapse of the password form. Uses the modern
+   ::details-content transition; browsers without support simply snap. */
+@supports (interpolate-size: allow-keywords) {
+  :root { interpolate-size: allow-keywords; }
+}
+.m3-pass-details::details-content {
+  opacity: 0;
+  block-size: 0;
+  overflow-y: clip;
+  transition:
+    content-visibility .35s allow-discrete,
+    opacity .28s ease,
+    block-size .35s cubic-bezier(.2, 0, 0, 1);
+}
+.m3-pass-details[open]::details-content {
+  opacity: 1;
+  block-size: auto;
+}
 .m3-pass-details summary {
   list-style: none;
   display: flex;

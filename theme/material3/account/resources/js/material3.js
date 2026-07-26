@@ -93,6 +93,30 @@ function initTheme() {
   applyTheme();
 }
 
+/* ── loading overlay ─────────────────────────────────────────────────────
+   Covers the app while React boots and the rail is being built, so the page
+   appears fully assembled instead of popping in piece by piece. ── */
+
+let hideLoader = () => {};
+
+function initLoader() {
+  const ov = document.createElement("div");
+  ov.className = "m3-loader-overlay";
+  ov.setAttribute("aria-hidden", "true");
+  ov.innerHTML =
+    '<svg class="m3-loader" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke-width="4"/></svg>';
+  document.body.appendChild(ov);
+  let hidden = false;
+  hideLoader = () => {
+    if (hidden) return;
+    hidden = true;
+    ov.classList.add("m3-loader-hide");
+    setTimeout(() => ov.remove(), 400);
+  };
+  // Never trap the user behind the overlay.
+  setTimeout(hideLoader, 8000);
+}
+
 /* ── navigation rail / bar ──────────────────────────────────────────────── */
 
 function collectNavLinks(nav) {
@@ -154,6 +178,8 @@ function buildRail(nav) {
   }
   addEventListener("popstate", () => markActive(rail));
   document.documentElement.classList.add("m3-rail-on");
+  // The console is assembled — reveal it on the next frame.
+  requestAnimationFrame(() => requestAnimationFrame(hideLoader));
   return true;
 }
 
@@ -170,12 +196,14 @@ function initRail() {
   setTimeout(() => obs.disconnect(), 20000);
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => {
-    initTheme();
-    initRail();
-  });
-} else {
+function init() {
+  initLoader();
   initTheme();
   initRail();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
 }

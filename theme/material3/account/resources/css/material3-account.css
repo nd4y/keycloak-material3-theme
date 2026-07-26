@@ -448,6 +448,65 @@ body {
   mask: url("../img/providers/github.svg") center / contain no-repeat;
 }
 
+/* ── Loading: M3 circular indicator ────────────────────────────────────────
+   Styles both the console's initial "Loading the Account Console" screen
+   (from keycloak.v3 index.ftl) and our own overlay that keeps the app
+   covered until it is fully assembled. ── */
+
+.keycloak__loading-container {
+  background: var(--m3-surface) !important;
+  color: var(--m3-on-surface) !important;
+}
+.keycloak__loading-container .pf-v5-c-spinner { display: none; }
+.keycloak__loading-container::before {
+  content: "";
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 4px solid var(--m3-secondary-container);
+  border-top-color: var(--m3-primary);
+  animation: m3-rot 1s linear infinite;
+}
+#loading-text {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  color: var(--m3-on-surface-variant) !important;
+  padding-top: 24px !important;
+}
+
+.m3-loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--m3-surface);
+  transition: opacity .3s ease;
+}
+.m3-loader-overlay.m3-loader-hide { opacity: 0; pointer-events: none; }
+
+.m3-loader {
+  width: 44px;
+  height: 44px;
+  animation: m3-rot 1.4s linear infinite;
+}
+.m3-loader circle {
+  stroke: var(--m3-primary);
+  stroke-linecap: round;
+  animation: m3-dash 1.3s ease-in-out infinite;
+}
+
+@keyframes m3-rot { to { transform: rotate(360deg); } }
+@keyframes m3-dash {
+  0%   { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
+  50%  { stroke-dasharray: 90, 200; stroke-dashoffset: -30; }
+  100% { stroke-dasharray: 90, 200; stroke-dashoffset: -113; }
+}
+
+/* Any other PF spinners (lazy tables etc.) pick up the accent color */
+.pf-v5-c-spinner__path { stroke: var(--m3-primary); }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }

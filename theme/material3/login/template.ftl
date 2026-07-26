@@ -48,17 +48,54 @@
     </script>
     <script src="${url.resourcesPath}/js/menu-button-links.js" type="module"></script>
     <script type="module">
+        // Theme-mode menu: system (follow the OS) / forced light / forced dark.
+        // "system" is the absence of the stored key, so the login page and the
+        // Account Console (same localStorage key) stay in sync.
         document.addEventListener("DOMContentLoaded", () => {
             const btn = document.getElementById("m3-theme-toggle");
-            if (!btn) return;
-            btn.addEventListener("click", () => {
+            const menu = document.getElementById("m3-theme-menu");
+            if (!btn || !menu) return;
+            const stored = () => {
+                try {
+                    const t = localStorage.getItem("m3-theme");
+                    return t === "light" || t === "dark" ? t : "system";
+                } catch (e) { return "system"; }
+            };
+            const apply = (mode) => {
+                try {
+                    if (mode === "system") localStorage.removeItem("m3-theme");
+                    else localStorage.setItem("m3-theme", mode);
+                } catch (e) { /* ignore */ }
                 const root = document.documentElement;
-                const current = root.getAttribute("data-m3-theme")
-                    || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-                const next = current === "dark" ? "light" : "dark";
-                root.setAttribute("data-m3-theme", next);
-                try { localStorage.setItem("m3-theme", next); } catch (e) { /* ignore */ }
+                if (mode === "system") root.removeAttribute("data-m3-theme");
+                else root.setAttribute("data-m3-theme", mode);
+                menu.querySelectorAll("[data-mode]").forEach((b) =>
+                    b.setAttribute("aria-checked", String(b.dataset.mode === mode)));
+            };
+            const close = () => {
+                menu.classList.remove("m3-open");
+                btn.setAttribute("aria-expanded", "false");
+                setTimeout(() => { menu.hidden = true; }, 160);
+            };
+            btn.addEventListener("click", () => {
+                if (!menu.hidden) { close(); return; }
+                menu.hidden = false;
+                requestAnimationFrame(() => menu.classList.add("m3-open"));
+                btn.setAttribute("aria-expanded", "true");
             });
+            menu.addEventListener("click", (e) => {
+                const b = e.target.closest("[data-mode]");
+                if (!b) return;
+                apply(b.dataset.mode);
+                close();
+            });
+            document.addEventListener("click", (e) => {
+                if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close();
+            });
+            addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && !menu.hidden) close();
+            });
+            apply(stored());
         });
         // Exit animation before same-origin navigations (Forgot password,
         // Register, Back to login…). pageshow restores the card when the
@@ -148,7 +185,14 @@
                 <div class="m3-logo" aria-hidden="true"><#if brandName?has_content>${brandName[0]?upper_case}<#else>K</#if></div>
                 <div class="m3-card-top-actions">
                 <button type="button" id="m3-help-btn" class="m3-icon-btn" aria-label="${msg("m3Help")}" title="${msg("m3Help")}" aria-haspopup="dialog"></button>
-                <button type="button" id="m3-theme-toggle" class="m3-theme-toggle" aria-label="${msg("m3ThemeToggle")}" title="${msg("m3ThemeToggle")}"></button>
+                <div class="m3-theme">
+                    <button type="button" id="m3-theme-toggle" class="m3-theme-toggle" aria-label="${msg("m3ThemeToggle")}" title="${msg("m3ThemeToggle")}" aria-haspopup="menu" aria-expanded="false"></button>
+                    <div id="m3-theme-menu" class="m3-theme-menu" role="menu" aria-label="${msg("m3ThemeToggle")}" hidden>
+                        <button type="button" role="menuitemradio" data-mode="system" aria-checked="false"><span class="m3-mode-ico m3-mode-system" aria-hidden="true"></span>${msg("m3ThemeSystem")}</button>
+                        <button type="button" role="menuitemradio" data-mode="light" aria-checked="false"><span class="m3-mode-ico m3-mode-light" aria-hidden="true"></span>${msg("m3ThemeLight")}</button>
+                        <button type="button" role="menuitemradio" data-mode="dark" aria-checked="false"><span class="m3-mode-ico m3-mode-dark" aria-hidden="true"></span>${msg("m3ThemeDark")}</button>
+                    </div>
+                </div>
                 <#if realm.internationalizationEnabled && locale.supported?size gt 1>
                     <div class="menu-button-links m3-locale" id="kc-locale">
                         <button tabindex="1" id="kc-current-locale-link" aria-label="${msg("languages")}" aria-haspopup="true" aria-expanded="false" aria-controls="language-switch1">

@@ -53,6 +53,7 @@ const ICONS = {
   folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
   dot: '<circle cx="12" cy="12" r="9.25"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
   menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  contrast: '<circle cx="12" cy="12" r="9.25"/><path d="M12 2.75a9.25 9.25 0 0 1 0 18.5z" fill="currentColor" stroke="none"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/>',
   moon: '<path d="M20 13A8 8 0 1 1 11 4a6.5 6.5 0 0 0 9 9z"/>',
 };
@@ -90,7 +91,7 @@ const NAV_LABEL_KEYS = {
   "applications": "m3NavApplications",
 };
 
-async function fetchNavLabels() {
+async function fetchM3Messages() {
   try {
     const env = JSON.parse(document.getElementById("environment").textContent);
     const root = new URL(SCRIPT_URL).pathname.split("/resources/")[0];
@@ -99,7 +100,7 @@ async function fetchNavLabels() {
     if (!res.ok) return {};
     const map = {};
     for (const { key, value } of await res.json()) {
-      if (key.startsWith("m3Nav")) map[key] = value;
+      if (key.startsWith("m3")) map[key] = value;
     }
     return map;
   } catch (e) {
@@ -129,16 +130,27 @@ function effectiveTheme() {
   return storedTheme() || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 }
 
+function themeMode() {
+  return storedTheme() || "system";
+}
+
+const MODE_ICON = { system: "contrast", light: "sun", dark: "moon" };
+
 let applying = false;
 function applyTheme() {
   applying = true;
   document.documentElement.classList.toggle(DARK_CLASS, effectiveTheme() === "dark");
   applying = false;
   const btn = document.getElementById("m3-theme-toggle");
-  if (btn) btn.innerHTML = iconSvg(effectiveTheme() === "dark" ? "sun" : "moon");
+  if (btn) btn.innerHTML = iconSvg(MODE_ICON[themeMode()]);
+  document.querySelectorAll(".m3-theme-menu [data-mode]").forEach((b) =>
+    b.setAttribute("aria-checked", String(b.dataset.mode === themeMode())));
 }
 
-function initTheme() {
+/* Three modes, as everywhere in Material: follow the system, forced light,
+   forced dark. "system" is the absence of the stored key — shared with the
+   login page. */
+function initTheme(msgsPromise) {
   applyTheme();
   // The console's own script toggles the class on matchMedia changes;
   // re-assert the user's explicit choice whenever the class flips.
@@ -147,19 +159,74 @@ function initTheme() {
     const wantDark = effectiveTheme() === "dark";
     if (document.documentElement.classList.contains(DARK_CLASS) !== wantDark) applyTheme();
   }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  // In system mode, follow OS switches live.
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if (!storedTheme()) applyTheme();
+  });
 
   const btn = document.createElement("button");
   btn.id = "m3-theme-toggle";
   btn.type = "button";
   btn.className = "m3-theme-toggle";
-  btn.setAttribute("aria-label", "Switch color theme");
-  btn.title = "Switch color theme";
+  btn.setAttribute("aria-haspopup", "menu");
+  btn.setAttribute("aria-expanded", "false");
+  document.body.appendChild(btn);
+
+  const menu = document.createElement("div");
+  menu.className = "m3-theme-menu";
+  menu.setAttribute("role", "menu");
+  menu.hidden = true;
+  document.body.appendChild(menu);
+
+  const close = () => {
+    menu.classList.remove("m3-open");
+    btn.setAttribute("aria-expanded", "false");
+    setTimeout(() => { menu.hidden = true; }, 160);
+  };
   btn.addEventListener("click", () => {
-    const next = effectiveTheme() === "dark" ? "light" : "dark";
-    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
+    if (!menu.hidden) { close(); return; }
+    menu.hidden = false;
+    requestAnimationFrame(() => menu.classList.add("m3-open"));
+    btn.setAttribute("aria-expanded", "true");
+  });
+  menu.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-mode]");
+    if (!b) return;
+    try {
+      if (b.dataset.mode === "system") localStorage.removeItem(THEME_KEY);
+      else localStorage.setItem(THEME_KEY, b.dataset.mode);
+    } catch (err) { /* ignore */ }
+    applyTheme();
+    close();
+  });
+  document.addEventListener("click", (e) => {
+    if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close();
+  });
+  addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !menu.hidden) close();
+  });
+
+  // Localized labels arrive with the shared m3* messages fetch; English
+  // fallbacks keep the menu usable if that request ever fails.
+  msgsPromise.then((msgs) => {
+    const labels = {
+      system: msgs.m3ThemeSystem || "System",
+      light: msgs.m3ThemeLight || "Light",
+      dark: msgs.m3ThemeDark || "Dark",
+    };
+    btn.setAttribute("aria-label", msgs.m3ThemeToggle || "Color theme");
+    btn.title = msgs.m3ThemeToggle || "Color theme";
+    menu.innerHTML = ["system", "light", "dark"]
+      .map((m) =>
+        `<button type="button" role="menuitemradio" data-mode="${m}" aria-checked="false">${iconSvg(MODE_ICON[m])}<span></span></button>`
+      )
+      .join("");
+    menu.querySelectorAll("[data-mode]").forEach((b) => {
+      b.querySelector("span").textContent = labels[b.dataset.mode];
+    });
     applyTheme();
   });
-  document.body.appendChild(btn);
+
   applyTheme();
 }
 
@@ -331,10 +398,10 @@ function buildRail(nav, labels) {
   return true;
 }
 
-async function initRail() {
+async function initRail(msgsPromise) {
   // The loading overlay covers the console anyway, so waiting for the label
   // fetch costs nothing visible; on failure the console's labels are kept.
-  const labels = await fetchNavLabels();
+  const labels = await msgsPromise;
   const tryBuild = () => {
     const nav = document.querySelector(".pf-v5-c-nav");
     return nav ? buildRail(nav, labels) : false;
@@ -388,8 +455,9 @@ function initBrand() {
 function init() {
   initFavicon(); // again: stock <link rel="icon"> may appear after our script tag
   initLoader();
-  initTheme();
-  initRail();
+  const msgsPromise = fetchM3Messages(); // shared: nav labels + theme-menu labels
+  initTheme(msgsPromise);
+  initRail(msgsPromise);
   initBrand();
 }
 

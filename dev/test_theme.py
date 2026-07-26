@@ -129,17 +129,38 @@ def test_login_pages(browser):
             ),
         )
 
-        # Theme toggle flips tokens and persists.
-        bg_before = page.evaluate("getComputedStyle(document.body).backgroundColor")
+        # Theme-mode menu: system / light / dark.
+        bg_system = page.evaluate("getComputedStyle(document.body).backgroundColor")
         page.click("#m3-theme-toggle")
-        page.wait_for_timeout(200)
-        bg_after = page.evaluate("getComputedStyle(document.body).backgroundColor")
-        check(f"login[{locale}]: toggle changes theme", bg_before != bg_after, f"{bg_before} -> {bg_after}")
+        page.wait_for_timeout(250)
+        check(
+            f"login[{locale}]: theme menu opens with 3 modes",
+            page.evaluate("!document.getElementById('m3-theme-menu').hidden")
+            and page.locator("#m3-theme-menu [data-mode]").count() == 3,
+        )
+        page.click('#m3-theme-menu [data-mode="dark"]')
+        page.wait_for_timeout(250)
+        bg_dark = page.evaluate("getComputedStyle(document.body).backgroundColor")
+        check(f"login[{locale}]: dark mode applies", bg_dark != bg_system, f"{bg_system} -> {bg_dark}")
+        check(
+            f"login[{locale}]: dark mode stored",
+            page.evaluate("localStorage.getItem('m3-theme')") == "dark",
+        )
         page.reload()
         page.wait_for_selector("#kc-page-title", timeout=20000)
         bg_reloaded = page.evaluate("getComputedStyle(document.body).backgroundColor")
-        check(f"login[{locale}]: toggle persists", bg_reloaded == bg_after, f"{bg_reloaded} != {bg_after}")
-        page.evaluate("localStorage.removeItem('m3-theme')")
+        check(f"login[{locale}]: dark mode persists", bg_reloaded == bg_dark, f"{bg_reloaded} != {bg_dark}")
+        # Back to "system": the stored key is cleared, the OS preference (light
+        # in this context) applies again.
+        page.click("#m3-theme-toggle")
+        page.wait_for_timeout(250)
+        page.click('#m3-theme-menu [data-mode="system"]')
+        page.wait_for_timeout(250)
+        check(
+            f"login[{locale}]: system mode clears the override",
+            page.evaluate("localStorage.getItem('m3-theme')") is None
+            and page.evaluate("getComputedStyle(document.body).backgroundColor") == bg_system,
+        )
         ctx.close()
 
 
@@ -267,17 +288,39 @@ def test_account_console(browser):
         ),
         page.evaluate("document.querySelector('link[rel=\\'icon\\']')?.href"),
     )
-    # Theme toggle.
-    dark_before = page.evaluate("document.documentElement.classList.contains('pf-v5-theme-dark')")
+    # Theme-mode menu: system / light / dark.
     page.click("#m3-theme-toggle")
     page.wait_for_timeout(300)
-    dark_after = page.evaluate("document.documentElement.classList.contains('pf-v5-theme-dark')")
-    check("account: toggle flips scheme", dark_before != dark_after)
+    check(
+        "account: theme menu opens with 3 modes",
+        page.evaluate("!document.querySelector('.m3-theme-menu').hidden")
+        and page.locator(".m3-theme-menu [data-mode]").count() == 3,
+    )
+    check(
+        "account: theme menu labels localized",
+        page.evaluate("document.querySelector('.m3-theme-menu [data-mode=\\'system\\'] span')?.textContent") == "System",
+    )
+    page.click('.m3-theme-menu [data-mode="dark"]')
+    page.wait_for_timeout(300)
+    check(
+        "account: dark mode applies",
+        page.evaluate("document.documentElement.classList.contains('pf-v5-theme-dark')"),
+    )
     page.reload()
     page.wait_for_selector(".m3-rail", timeout=25000)
-    dark_reloaded = page.evaluate("document.documentElement.classList.contains('pf-v5-theme-dark')")
-    check("account: toggle persists", dark_reloaded == dark_after)
-    page.evaluate("localStorage.removeItem('m3-theme')")
+    check(
+        "account: dark mode persists",
+        page.evaluate("document.documentElement.classList.contains('pf-v5-theme-dark')"),
+    )
+    page.click("#m3-theme-toggle")
+    page.wait_for_timeout(300)
+    page.click('.m3-theme-menu [data-mode="system"]')
+    page.wait_for_timeout(300)
+    check(
+        "account: system mode clears the override and follows the OS",
+        page.evaluate("localStorage.getItem('m3-theme')") is None
+        and not page.evaluate("document.documentElement.classList.contains('pf-v5-theme-dark')"),
+    )
 
     # Fonts from m3.material.io (Google Sans) actually loaded.
     page.wait_for_timeout(500)
@@ -396,6 +439,10 @@ def test_account_console(browser):
     ru_first = rpage.locator('.m3-rail-item[href$="/account/"] .m3-rail-label, .m3-rail-item[href*="personal-info"] .m3-rail-label').first.inner_text().strip()
     check("account[mobile,ru]: compact Russian labels", ru_first == "Профиль", repr(ru_first))
     check(
+        "account[mobile,ru]: theme menu labels in Russian",
+        rpage.evaluate("document.querySelector('.m3-theme-menu [data-mode=\\'system\\'] span')?.textContent") == "Системная",
+    )
+    check(
         "account[mobile,ru]: bottom bar labels fit without truncation",
         rpage.evaluate(
             """[...document.querySelectorAll('.m3-rail-label')]
@@ -457,6 +504,10 @@ def test_motion(browser):
             check(f"motion[login]: {name} hover is animated", _dur(page, sel) > 0)
     if EXPECT_PASSKEY:
         check("motion[login]: passkey button animated", _dur(page, "#authenticateWebAuthnButton") > 0)
+    check("motion[login]: theme menu uses M3 easing",
+          _dur(page, "#m3-theme-menu") > 0
+          and "0.2, 0, 0, 1" in page.evaluate(
+              "getComputedStyle(document.getElementById('m3-theme-menu')).transitionTimingFunction"))
     # Brand panel actually collapses (smoothly) when the window narrows.
     w_before = page.evaluate("document.querySelector('.m3-brand').getBoundingClientRect().width")
     page.set_viewport_size({"width": 800, "height": 900})
@@ -489,6 +540,10 @@ def test_motion(browser):
     page.wait_for_selector(".m3-rail", timeout=25000)
     check("motion[account]: rail pill hover animated", _dur(page, ".m3-rail-ind") > 0)
     check("motion[account]: theme toggle animated", _dur(page, "#m3-theme-toggle") > 0)
+    check("motion[account]: theme menu uses M3 easing",
+          _dur(page, ".m3-theme-menu") > 0
+          and "0.2, 0, 0, 1" in page.evaluate(
+              "getComputedStyle(document.querySelector('.m3-theme-menu')).transitionTimingFunction"))
     check("motion[account]: buttons animated", _dur(page, ".pf-v5-c-button") > 0)
     check("motion[account]: drawer panel uses M3 easing",
           _dur(page, ".m3-drawer-panel") > 0

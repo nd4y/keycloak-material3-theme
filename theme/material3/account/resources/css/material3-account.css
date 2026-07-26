@@ -363,6 +363,46 @@ body {
 .m3-theme-toggle:hover { background: var(--m3-surface-c3); }
 .m3-theme-toggle svg { width: 22px; height: 22px; }
 
+/* Theme-mode menu (system / light / dark) — anchored above the toggle */
+.m3-theme-menu {
+  position: fixed;
+  z-index: 261;
+  left: 20px;
+  bottom: 76px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 180px;
+  padding: 6px;
+  background: var(--m3-surface-c2);
+  border-radius: 16px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .25);
+  opacity: 0;
+  transform: translateY(4px) scale(.98);
+  transform-origin: bottom left;
+  transition: opacity .15s cubic-bezier(.2, 0, 0, 1), transform .15s cubic-bezier(.2, 0, 0, 1);
+}
+.m3-theme-menu[hidden] { display: none; }
+.m3-theme-menu.m3-open { opacity: 1; transform: none; }
+.m3-theme-menu button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 9px 14px;
+  border-radius: 10px;
+  color: var(--m3-on-surface);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  transition: background .2s;
+}
+.m3-theme-menu button:hover, .m3-theme-menu button:focus-visible { background: var(--m3-surface-c3); }
+.m3-theme-menu button[aria-checked="true"] { color: var(--m3-primary); font-weight: 600; }
+.m3-theme-menu button svg { width: 18px; height: 18px; flex: none; }
+
 /* Medium screens (768–1099px): rail hides, hamburger + drawer take over —
    the same adaptive behavior as m3.material.io. */
 @media (max-width: 1099px) {
@@ -379,6 +419,12 @@ body {
     background: var(--m3-secondary-container);
     color: var(--m3-on-secondary-container);
     box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+  }
+  .m3-theme-menu {
+    left: auto;
+    right: 22px;
+    bottom: 78px;
+    transform-origin: bottom right;
   }
 }
 
@@ -412,6 +458,7 @@ body {
   }
   .m3-rail-on .pf-v5-c-page__main { padding-left: 0; padding-bottom: 96px; }
   .m3-theme-toggle { bottom: calc(96px + env(safe-area-inset-bottom)); }
+  .m3-theme-menu { bottom: calc(152px + env(safe-area-inset-bottom)); }
 }
 
 /* The narrowest phones: 5 × 12px labels don't quite fit — step down 1px

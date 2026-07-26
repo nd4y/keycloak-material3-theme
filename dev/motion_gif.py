@@ -101,10 +101,14 @@ def main():
         click(page, ".m3-pass-details summary")
         page.wait_for_timeout(900)
 
-        # Theme toggle: light -> dark -> light.
+        # Theme menu: pick dark, then back to light.
         click(page, "#m3-theme-toggle")
+        page.wait_for_timeout(700)
+        click(page, '#m3-theme-menu [data-mode="dark"]')
         page.wait_for_timeout(1000)
         click(page, "#m3-theme-toggle")
+        page.wait_for_timeout(700)
+        click(page, '#m3-theme-menu [data-mode="light"]')
         page.wait_for_timeout(900)
 
         # Register: exit + entrance animations, then back.
@@ -128,6 +132,8 @@ def main():
         click(page, '.m3-rail-item[href*="linked-accounts"]')
         page.wait_for_timeout(1500)
         click(page, "#m3-theme-toggle")
+        page.wait_for_timeout(700)
+        click(page, '.m3-theme-menu [data-mode="dark"]')
         page.wait_for_timeout(1400)
 
         page.close()
@@ -147,7 +153,17 @@ def main():
     subprocess.run(["ffmpeg", "-y", "-i", video, "-i", str(palette),
                     "-lavfi", f"{flt}[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle",
                     str(OUT)], check=True, capture_output=True)
-    print(f"saved {OUT} ({OUT.stat().st_size // 1024} KiB)")
+    # Full-decode integrity check: a partially-flushed file (e.g. a sync
+    # client touching it mid-write) decodes with LZW errors — fail loudly
+    # instead of committing a broken GIF.
+    probe = subprocess.run(["ffmpeg", "-v", "error", "-i", str(OUT), "-f", "null", "-"],
+                           capture_output=True, text=True)
+    frames = subprocess.run(["ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0",
+                             "-show_entries", "stream=nb_read_frames", "-of", "csv=p=0", str(OUT)],
+                            capture_output=True, text=True).stdout.strip()
+    if probe.stderr.strip() or not frames or int(frames) < 500:
+        raise SystemExit(f"motion.gif failed integrity check: frames={frames!r}, errors:\n{probe.stderr[:500]}")
+    print(f"saved {OUT} ({OUT.stat().st_size // 1024} KiB, {frames} frames, decode clean)")
 
 
 if __name__ == "__main__":

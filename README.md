@@ -40,10 +40,11 @@ carrier image) mounted into the official Keycloak image.
 - **Tested like a product, not a stylesheet.** An end-to-end Playwright suite (70+
   assertions: rendering, navigation, theming, i18n, motion, accessibility regressions)
   runs in CI against Keycloak 26.0 and 26.3 before any image is published.
-- **Considered details throughout.** Manual light/dark toggle that remembers the choice
-  across login and console; a stable scrollbar gutter so pages never shift; an M3 loading
-  indicator that reveals the console only when fully assembled; upstream Russian
-  mistranslations of "passkey" corrected; extensible identity-provider iconography.
+- **Considered details throughout.** A three-mode color-scheme menu (follow the system /
+  light / dark) whose choice is shared between login and console; a stable scrollbar
+  gutter so pages never shift; an M3 loading indicator that reveals the console only when
+  fully assembled; upstream Russian mistranslations of "passkey" corrected; extensible
+  identity-provider iconography.
 
 <p align="center">
   <img src="docs/motion.gif" alt="Motion walkthrough: card entrance, password expansion, theme switching, page transitions" width="88%">

@@ -129,7 +129,23 @@ function collectNavLinks(nav) {
     .filter((l) => l.href && l.label && !seen.has(l.href) && seen.add(l.href));
 }
 
+let lastPath = null;
+
+function animatePageTransition() {
+  const path = location.pathname;
+  if (lastPath === path) return;
+  const first = lastPath === null;
+  lastPath = path;
+  if (first) return; // no animation on initial load — the overlay handles that
+  const main = document.querySelector(".pf-v5-c-page__main");
+  if (!main) return;
+  main.classList.remove("m3-page-in");
+  void main.offsetWidth; // restart the animation
+  main.classList.add("m3-page-in");
+}
+
 function markActive(rail) {
+  animatePageTransition();
   const path = location.pathname.replace(/\/$/, "");
   let best = null;
   rail.querySelectorAll("a.m3-rail-item").forEach((a) => {

@@ -206,6 +206,16 @@ def test_account_console(browser):
             "document.querySelector('.m3-rail-item[data-active]')?.getAttribute('href')?.includes('signing-in')"
         ),
     )
+    check(
+        "account: page transition animation runs",
+        page.evaluate("document.querySelector('.pf-v5-c-page__main').classList.contains('m3-page-in')"),
+    )
+    page.click('.m3-rail-item[href*="linked-accounts"]')
+    page.wait_for_selector(".pf-v5-c-text-input-group", timeout=15000)
+    check(
+        "account: filter field wide enough",
+        page.evaluate("document.querySelector('.pf-v5-c-text-input-group').getBoundingClientRect().width >= 260"),
+    )
     # Theme toggle.
     dark_before = page.evaluate("document.documentElement.classList.contains('pf-v5-theme-dark')")
     page.click("#m3-theme-toggle")

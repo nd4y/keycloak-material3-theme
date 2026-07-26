@@ -416,12 +416,15 @@ body {
   min-height: 40px;
   padding-inline-start: 8px;
 }
+.pf-v5-c-toolbar .pf-v5-c-text-input-group { min-width: 280px; }
 .pf-v5-c-text-input-group__text-input,
 .pf-v5-theme-dark .pf-v5-c-text-input-group__text-input {
   background: transparent;
   color: var(--m3-on-surface);
   border: 0;
   outline: none;
+  width: 100%;
+  min-width: 0;
 }
 .pf-v5-c-text-input-group__text::before,
 .pf-v5-c-text-input-group__text::after,
@@ -559,6 +562,16 @@ body {
 }
 @keyframes m3-delayed-fade { to { opacity: 1; } }
 
+/* ── Page transitions: M3 fade-through between console sections ─────────── */
+
+.pf-v5-c-page__main.m3-page-in {
+  animation: m3-page-in .28s cubic-bezier(.2, 0, 0, 1);
+}
+@keyframes m3-page-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
+  * { transition: none !important; animation: none !important; }
 }

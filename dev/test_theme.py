@@ -237,6 +237,38 @@ def test_account_console(browser):
     ctx.close()
 
 
+def test_forced_light_on_dark_system(browser):
+    """System prefers dark but the user forced light: text must stay readable
+    (regression: UA canvastext painted headings white on the light ground)."""
+    ctx = browser.new_context(viewport={"width": 1440, "height": 900}, color_scheme="dark", locale="en-US")
+    page = ctx.new_page()
+    page.add_init_script("try { localStorage.setItem('m3-theme', 'light'); } catch (e) {}")
+    page.goto(f"{BASE}/realms/demo/account/")
+    page.wait_for_selector("#kc-page-title", timeout=20000)
+    page.evaluate("document.querySelector('details.m3-pass-details').open = true")
+    page.fill("#username", "demo")
+    page.fill("#password", "demo1234")
+    page.click("#kc-login")
+    page.wait_for_selector(".m3-rail", timeout=25000)
+    page.click('.m3-rail-item[href*="signing-in"]')
+    page.wait_for_timeout(2000)
+    res = page.evaluate(
+        """() => {
+          const t = [...document.querySelectorAll('.pf-v5-c-title')].find(e => /auth|Password|Passkey/i.test(e.textContent));
+          const bg = getComputedStyle(document.body).backgroundColor;
+          const c = t ? getComputedStyle(t).color : null;
+          return { bg, c };
+        }"""
+    )
+    check(
+        "mixed: forced-light headings readable",
+        res["c"] is not None and res["c"] != "rgb(255, 255, 255)",
+        str(res),
+    )
+    page.evaluate("localStorage.removeItem('m3-theme')")
+    ctx.close()
+
+
 def main():
     test_messages_files()
     with sync_playwright() as p:
@@ -245,6 +277,7 @@ def main():
         test_webauthn_error_message(browser)
         test_register_page(browser)
         test_account_console(browser)
+        test_forced_light_on_dark_system(browser)
         browser.close()
     print(f"\n{len(FAILURES)} failure(s)" if FAILURES else "\nAll tests passed")
     sys.exit(1 if FAILURES else 0)

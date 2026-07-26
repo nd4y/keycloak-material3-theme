@@ -112,6 +112,11 @@
 
 html.m3-html { height: 100%; }
 
+/* Keep UA colors (form controls, scrollbars) in sync with the effective theme */
+:root { color-scheme: light dark; }
+:root[data-m3-theme="light"] { color-scheme: light; }
+:root[data-m3-theme="dark"] { color-scheme: dark; }
+
 body.m3-body {
   margin: 0;
   min-height: 100vh;

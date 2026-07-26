@@ -67,8 +67,16 @@
   --pf-v5-global--BorderColor--300: var(--m3-outline-variant);
 }
 
+/* The console's <meta color-scheme="light dark"> lets the browser paint UA
+   colors (white canvastext under a dark system theme) on anything that only
+   inherits — pin the scheme and the inherited text color explicitly, so a
+   forced light/dark choice from the toggle stays readable. */
+:root { color-scheme: light; }
+:root.pf-v5-theme-dark { color-scheme: dark; }
+
 body {
   background: var(--m3-surface);
+  color: var(--m3-on-surface);
 }
 
 /* ── Masthead ─────────────────────────────────────────────────────────── */
@@ -506,6 +514,24 @@ body {
 
 /* Any other PF spinners (lazy tables etc.) pick up the accent color */
 .pf-v5-c-spinner__path { stroke: var(--m3-primary); }
+
+/* Route-transition fallback spinner: center it and delay its appearance so
+   fast navigations do not flash a corner spinner at all. */
+.pf-v5-c-page__main .pf-v5-c-spinner {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  opacity: 0;
+  animation: m3-delayed-fade .25s ease .45s forwards;
+}
+.pf-v5-c-button .pf-v5-c-spinner {
+  position: static;
+  translate: none;
+  opacity: 1;
+  animation: none;
+}
+@keyframes m3-delayed-fade { to { opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }

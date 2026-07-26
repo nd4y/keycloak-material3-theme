@@ -1,8 +1,8 @@
 {
   "realm": "demo",
   "enabled": true,
-  "displayName": "Material 3",
-  "displayNameHtml": "Material 3",
+  "displayName": "Demo",
+  "displayNameHtml": "Demo",
   "loginTheme": "material3",
   "accountTheme": "material3",
   "internationalizationEnabled": true,

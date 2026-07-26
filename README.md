@@ -19,9 +19,17 @@ that you mount into the official Keycloak image.
   on the page; identity providers come second as tonal icon buttons; the username/password
   form is collapsed behind a text button and expands only on demand (or automatically when
   it is the only option, or after a failed attempt).
-- **Automatic light / dark theme** via `prefers-color-scheme` — pure CSS, no toggle, no JS.
-- **Responsive** — a single centered card on mobile, card plus a decorative brand panel on
-  desktop. The brand panel picks up your realm display name.
+- **Looks like m3.material.io** — the palette, the Google Sans typography, the navigation
+  rail geometry and the button shapes are taken from Google's own Material 3 site, in both
+  light and dark schemes (plus a manual theme toggle that remembers the choice).
+- **Responsive like m3.material.io** — the Account Console shows a navigation rail on wide
+  screens (≥ 1100px), collapses it into a hamburger + modal drawer on medium screens, and
+  becomes a bottom navigation bar on phones. Login pages: a single centered card on mobile,
+  card plus a decorative brand panel on desktop; the brand panel picks up your realm
+  display name.
+- **Fonts** — Google Sans / Google Sans Text are loaded from the Google Fonts CDN via one
+  `@import` line at the top of each CSS file. If you must not call third-party CDNs
+  (privacy / GDPR), delete that line — everything falls back to Roboto/system fonts.
 - **Identity-provider icons** — Google, GitHub, GitLab and Telegram icons ship out of the box,
   matched by provider alias. Adding a provider is one SVG file, no template changes
   ([details below](#identity-provider-icons)).
@@ -211,7 +219,8 @@ key icon (`oidc.svg`).
 
 ## Changing the color palette
 
-All colors are CSS custom properties generated from the Material seed color `#6750A4`:
+All colors are CSS custom properties. The stock values are sampled from
+[m3.material.io](https://m3.material.io/) itself (light primary `#6442D6`, dark `#9F86FF`):
 
 - login: [`theme/material3/login/resources/css/material3.css`](theme/material3/login/resources/css/material3.css) (`--m3-*` tokens, light + dark blocks at the top)
 - account: [`theme/material3/account/resources/css/material3-account.css`](theme/material3/account/resources/css/material3-account.css)

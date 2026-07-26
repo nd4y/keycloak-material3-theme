@@ -13,6 +13,34 @@
 const THEME_KEY = "m3-theme";
 const DARK_CLASS = "pf-v5-theme-dark";
 
+/* The theme's own resource base. currentScript is null in module scripts
+   (the console loads theme scripts as type="module"), so fall back to
+   finding our own <script> tag. */
+const SCRIPT_URL =
+  (document.currentScript && document.currentScript.src) ||
+  (document.querySelector('script[src*="material3.js"]') || {}).src ||
+  "";
+
+/* Swap the stock favicon for the theme's "ID" badge icon. The script URL
+   carries the release ?v=, reuse it so the icon busts caches on updates. */
+function initFavicon() {
+  if (!SCRIPT_URL) return;
+  let href;
+  try {
+    const u = new URL(SCRIPT_URL);
+    href = new URL("../img/favicon.svg", u.origin + u.pathname).href + u.search;
+  } catch (e) {
+    return;
+  }
+  document.querySelectorAll('link[rel~="icon"]').forEach((l) => l.remove());
+  const link = document.createElement("link");
+  link.rel = "icon";
+  link.type = "image/svg+xml";
+  link.href = href;
+  document.head.appendChild(link);
+}
+initFavicon();
+
 /* ── icons (24px, stroke-based) ─────────────────────────────────────────── */
 
 const ICONS = {
@@ -24,6 +52,7 @@ const ICONS = {
   people: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 19a6.5 6.5 0 0 1 13 0"/><path d="M16 5.5a3.5 3.5 0 0 1 0 6.6M17.5 13.4a6.5 6.5 0 0 1 4 5.6"/>',
   folder: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
   dot: '<circle cx="12" cy="12" r="9.25"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/>',
   moon: '<path d="M20 13A8 8 0 1 1 11 4a6.5 6.5 0 0 0 9 9z"/>',
 };
@@ -144,20 +173,79 @@ function animatePageTransition() {
   main.classList.add("m3-page-in");
 }
 
-function markActive(rail) {
+function markActive() {
   animatePageTransition();
   const path = location.pathname.replace(/\/$/, "");
-  let best = null;
-  rail.querySelectorAll("a.m3-rail-item").forEach((a) => {
-    a.removeAttribute("data-active");
-    const href = a.getAttribute("href").replace(/\/$/, "");
-    if ((path === href || path.startsWith(href + "/") || path.startsWith(href + "#"))
-        && (!best || href.length > best.getAttribute("href").replace(/\/$/, "").length)) {
-      best = a;
-    }
+  // The rail and the drawer mirror each other — mark both sets.
+  for (const sel of ["a.m3-rail-item", "a.m3-drawer-item"]) {
+    const links = [...document.querySelectorAll(sel)];
+    if (!links.length) continue;
+    let best = null;
+    links.forEach((a) => {
+      a.removeAttribute("data-active");
+      const href = a.getAttribute("href").replace(/\/$/, "");
+      if ((path === href || path.startsWith(href + "/") || path.startsWith(href + "#"))
+          && (!best || href.length > best.getAttribute("href").replace(/\/$/, "").length)) {
+        best = a;
+      }
+    });
+    if (!best) best = links[0];
+    best.setAttribute("data-active", "");
+  }
+}
+
+function spaNavigate(href) {
+  history.pushState({}, "", href);
+  dispatchEvent(new PopStateEvent("popstate"));
+  markActive();
+}
+
+/* Modal drawer + hamburger for medium screens (rail hidden 768–1099px) —
+   mirrors how m3.material.io collapses its rail into a menu. */
+function buildDrawer(items) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "m3-menu-btn";
+  btn.setAttribute("aria-label", "Menu");
+  btn.innerHTML = iconSvg("menu");
+  const masthead = document.querySelector(".pf-v5-c-masthead");
+  if (masthead) masthead.insertBefore(btn, masthead.firstChild);
+
+  const drawer = document.createElement("div");
+  drawer.className = "m3-drawer";
+  drawer.hidden = true;
+  drawer.innerHTML =
+    '<aside class="m3-drawer-panel" role="dialog" aria-label="Navigation">' +
+    items
+      .map(
+        (l) =>
+          `<a class="m3-drawer-item" href="${l.href}">${iconSvg(iconFor(l.href))}<span>${l.label}</span></a>`
+      )
+      .join("") +
+    "</aside>";
+  document.body.appendChild(drawer);
+
+  const close = () => {
+    drawer.classList.remove("m3-open");
+    setTimeout(() => { drawer.hidden = true; }, 300);
+  };
+  btn.addEventListener("click", () => {
+    drawer.hidden = false;
+    setTimeout(() => drawer.classList.add("m3-open"), 10);
   });
-  if (!best && rail.firstElementChild) best = rail.firstElementChild;
-  if (best) best.setAttribute("data-active", "");
+  drawer.addEventListener("click", (e) => {
+    const a = e.target.closest("a.m3-drawer-item");
+    if (a) {
+      e.preventDefault();
+      spaNavigate(a.getAttribute("href"));
+      close();
+      return;
+    }
+    if (e.target === drawer) close();
+  });
+  addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !drawer.hidden) close();
+  });
 }
 
 function buildRail(nav) {
@@ -177,22 +265,21 @@ function buildRail(nav) {
     const a = e.target.closest("a.m3-rail-item");
     if (!a) return;
     e.preventDefault();
-    history.pushState({}, "", a.getAttribute("href"));
-    dispatchEvent(new PopStateEvent("popstate"));
-    markActive(rail);
+    spaNavigate(a.getAttribute("href"));
   });
   document.body.appendChild(rail);
-  markActive(rail);
+  buildDrawer(items);
+  markActive();
   // Track console-initiated navigation too.
   for (const fn of ["pushState", "replaceState"]) {
     const orig = history[fn].bind(history);
     history[fn] = (...args) => {
       const r = orig(...args);
-      markActive(rail);
+      markActive();
       return r;
     };
   }
-  addEventListener("popstate", () => markActive(rail));
+  addEventListener("popstate", () => markActive());
   document.documentElement.classList.add("m3-rail-on");
   // The console is assembled — reveal it. setTimeout rather than rAF: frame
   // callbacks stall in background tabs (and around view transitions).
@@ -252,6 +339,7 @@ function initBrand() {
 }
 
 function init() {
+  initFavicon(); // again: stock <link rel="icon"> may appear after our script tag
   initLoader();
   initTheme();
   initRail();

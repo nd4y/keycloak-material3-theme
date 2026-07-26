@@ -3,42 +3,52 @@
    The console is a PatternFly v5 React app; we restyle it through PF CSS
    variables plus a few component-level overrides. Dark mode: the console
    itself toggles .pf-v5-theme-dark on <html> following the system theme.
+   Palette, typography and layout mirror m3.material.io itself.
    ═══════════════════════════════════════════════════════════════════════ */
 
+/* Same faces m3.material.io uses; served by Google Fonts. If you must avoid
+   the Google Fonts CDN (privacy), delete this line — the stack falls back
+   to Roboto/system fonts. */
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Text:wght@400;500;700&display=swap");
+
 :root {
-  --m3-primary: #6750A4;
-  --m3-primary-hover: #56418f;
+  --m3-primary: #6442D6;
+  --m3-primary-hover: #5636BC;
   --m3-on-primary: #FFFFFF;
-  --m3-primary-container: #EADDFF;
-  --m3-on-primary-container: #21005D;
-  --m3-secondary-container: #E8DEF8;
-  --m3-on-secondary-container: #1D192B;
-  --m3-surface: #FEF7FF;
-  --m3-surface-c1: #F7F2FA;
-  --m3-surface-c2: #F3EDF7;
-  --m3-surface-c3: #ECE6F0;
-  --m3-on-surface: #1D1B20;
-  --m3-on-surface-variant: #49454F;
-  --m3-outline-variant: #CAC4D0;
+  --m3-primary-container: #F1D3F9;
+  --m3-on-primary-container: #35194A;
+  --m3-secondary-container: #DCDAF5;
+  --m3-on-secondary-container: #21182B;
+  --m3-surface: #FEFBFF;      /* page shell */
+  --m3-rail: #F2ECEE;        /* nav rail strip */
+  --m3-surface-c1: #F8F1F6;  /* cards / panels */
+  --m3-surface-c2: #F2ECEE;
+  --m3-surface-c3: #ECE5EB;  /* filled inputs, hover layers */
+  --m3-on-surface: #1C1B1D;
+  --m3-on-surface-variant: #4D4256;
+  --m3-outline-variant: #C9C2CC;
+  --m3-error: #B3261E;
   --m3-error-container: #F9DEDC;
   --m3-on-error-container: #8C1D18;
 }
 
 .pf-v5-theme-dark {
-  --m3-primary: #D0BCFF;
-  --m3-primary-hover: #dcccff;
-  --m3-on-primary: #381E72;
-  --m3-primary-container: #4F378B;
-  --m3-on-primary-container: #EADDFF;
-  --m3-secondary-container: #4A4458;
-  --m3-on-secondary-container: #E8DEF8;
-  --m3-surface: #141218;
-  --m3-surface-c1: #1D1B20;
-  --m3-surface-c2: #211F26;
-  --m3-surface-c3: #2B2930;
-  --m3-on-surface: #E6E0E9;
-  --m3-on-surface-variant: #CAC4D0;
-  --m3-outline-variant: #49454F;
+  --m3-primary: #9F86FF;
+  --m3-primary-hover: #B29EFF;
+  --m3-on-primary: #1A0056;
+  --m3-primary-container: #553F5D;
+  --m3-on-primary-container: #F1D3F9;
+  --m3-secondary-container: #45455A;
+  --m3-on-secondary-container: #E2E0FB;
+  --m3-surface: #141314;
+  --m3-rail: #211F21;
+  --m3-surface-c1: #1C1B1D;
+  --m3-surface-c2: #211F21;
+  --m3-surface-c3: #2A282B;
+  --m3-on-surface: #E6E1E3;
+  --m3-on-surface-variant: #CBC4CC;
+  --m3-outline-variant: #47464A;
+  --m3-error: #F2B8B5;
   --m3-error-container: #8C1D18;
   --m3-on-error-container: #F9DEDC;
 }
@@ -46,8 +56,8 @@
 /* ── Global PF token overrides ────────────────────────────────────────── */
 
 :root, .pf-v5-theme-dark {
-  --pf-v5-global--FontFamily--text: "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --pf-v5-global--FontFamily--heading: "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --pf-v5-global--FontFamily--text: "Google Sans Text", "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --pf-v5-global--FontFamily--heading: "Google Sans", "Google Sans Text", "Roboto", "Segoe UI", system-ui, sans-serif;
 
   --pf-v5-global--primary-color--100: var(--m3-primary);
   --pf-v5-global--primary-color--200: var(--m3-primary-hover);
@@ -87,9 +97,9 @@ body {
 
 .pf-v5-c-masthead,
 .pf-v5-theme-dark .pf-v5-c-masthead {
-  --pf-v5-c-masthead--BackgroundColor: var(--m3-surface-c1);
-  background: var(--m3-surface-c1);
-  border-bottom: 1px solid var(--m3-outline-variant);
+  --pf-v5-c-masthead--BackgroundColor: var(--m3-surface);
+  background: var(--m3-surface);
+  border-bottom: 0;
 }
 .pf-v5-c-masthead__content, .pf-v5-c-masthead__main { background: transparent; }
 .pf-v5-c-toolbar,
@@ -101,7 +111,7 @@ body {
 }
 .pf-v5-c-page__header,
 .pf-v5-theme-dark .pf-v5-c-page__header {
-  background: var(--m3-surface-c1);
+  background: var(--m3-surface);
 }
 .pf-v5-c-masthead .pf-v5-c-brand { max-height: 40px; }
 
@@ -112,9 +122,10 @@ body {
 .pf-v5-c-masthead__brand { text-decoration: none; }
 .m3-brand-mark { display: flex; align-items: center; gap: 10px; }
 .m3-brand-name {
-  font-size: 19px;
-  font-weight: 800;
-  letter-spacing: -.02em;
+  font-family: "Google Sans", "Google Sans Text", "Roboto", sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: normal;
   color: var(--m3-on-surface);
 }
 .m3-brand-badge {
@@ -166,19 +177,21 @@ body {
 .m3-rail-on .pf-v5-c-masthead__toggle,
 .m3-rail-on #nav-toggle { display: none !important; }
 
+/* Rail geometry copied from m3.material.io: an 88px strip in its own
+   surface tone, 56×32 fully-rounded icon pills, 12px Google Sans labels. */
 .m3-rail {
   position: fixed;
   z-index: 250;
   left: 0;
   top: 72px;
   bottom: 0;
-  width: 96px;
+  width: 88px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding-top: 16px;
-  background: var(--m3-surface);
+  gap: 12px;
+  padding-top: 24px;
+  background: var(--m3-rail);
 }
 
 .m3-rail-item {
@@ -186,8 +199,8 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  width: 88px;
-  padding: 4px 2px;
+  width: 80px;
+  padding: 2px;
   text-decoration: none;
   color: var(--m3-on-surface-variant);
 }
@@ -199,30 +212,141 @@ body {
   justify-content: center;
   width: 56px;
   height: 32px;
-  border-radius: 16px;
+  border-radius: 100px;
   transition: background .2s;
 }
 .m3-rail-ind svg { width: 22px; height: 22px; }
 .m3-rail-item:hover .m3-rail-ind { background: var(--m3-surface-c3); }
-.m3-rail-item[data-active] { color: var(--m3-on-surface); }
+.pf-v5-theme-dark .m3-rail-item:hover .m3-rail-ind { background: var(--m3-surface-c3); }
+.m3-rail-item[data-active] { color: var(--m3-on-secondary-container); }
 .m3-rail-item[data-active] .m3-rail-ind {
   background: var(--m3-secondary-container);
   color: var(--m3-on-secondary-container);
 }
 
 .m3-rail-label {
-  font-size: 11.5px;
+  font-family: "Google Sans", "Google Sans Text", "Roboto", sans-serif;
+  font-size: 12px;
   font-weight: 500;
+  letter-spacing: .1px;
   text-align: center;
-  line-height: 1.25;
-  max-width: 88px;
+  line-height: 16px;
+  max-width: 80px;
 }
-.m3-rail-item[data-active] .m3-rail-label { font-weight: 700; }
 
-.m3-rail-on .pf-v5-c-page__main { padding-left: 96px; }
+.m3-rail-on .pf-v5-c-page__main { padding-left: 88px; }
 
+/* ── Hamburger + modal drawer (only between 768 and 1099px) ───────────── */
+
+.m3-menu-btn {
+  display: none;
+  width: 48px;
+  height: 48px;
+  margin-right: 4px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--m3-on-surface);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+.m3-menu-btn:hover { background: var(--m3-surface-c3); }
+.m3-menu-btn svg { width: 24px; height: 24px; }
+
+.m3-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: none;
+  background: rgba(0, 0, 0, .35);
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+.m3-drawer.m3-open { opacity: 1; }
+.m3-drawer-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(320px, 85vw);
+  padding: 20px 12px;
+  background: var(--m3-surface-c1);
+  border-radius: 0 16px 16px 0;
+  transform: translateX(-100%);
+  transition: transform .3s cubic-bezier(.2, 0, 0, 1);
+  overflow-y: auto;
+}
+.m3-drawer.m3-open .m3-drawer-panel { transform: none; }
+.m3-drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  padding: 0 18px;
+  border-radius: 100px;
+  text-decoration: none;
+  font-family: "Google Sans", "Google Sans Text", "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: .1px;
+  color: var(--m3-on-surface-variant);
+}
+.m3-drawer-item:hover { text-decoration: none; background: var(--m3-surface-c3); color: var(--m3-on-surface); }
+.m3-drawer-item[data-active] {
+  background: var(--m3-secondary-container);
+  color: var(--m3-on-secondary-container);
+}
+.m3-drawer-item svg { width: 24px; height: 24px; flex: none; }
+
+/* ── Theme toggle (injected by js/material3.js) ───────────────────────────
+   Desktop (rail visible): an outlined circle pinned to the rail's bottom,
+   like the toggles on m3.material.io. Narrow screens: a floating button. */
+.m3-theme-toggle {
+  position: fixed;
+  z-index: 260;
+  left: 20px;
+  bottom: 20px;
+  width: 48px;
+  height: 48px;
+  border: 1.5px solid var(--m3-outline-variant);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--m3-on-surface-variant);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+}
+.m3-theme-toggle:hover { background: var(--m3-surface-c3); }
+.m3-theme-toggle svg { width: 22px; height: 22px; }
+
+/* Medium screens (768–1099px): rail hides, hamburger + drawer take over —
+   the same adaptive behavior as m3.material.io. */
+@media (max-width: 1099px) {
+  .m3-rail { display: none; }
+  .m3-rail-on .pf-v5-c-page__main { padding-left: 0; }
+  .m3-menu-btn { display: inline-flex; }
+  .m3-drawer { display: block; }
+  .m3-drawer[hidden] { display: none; }
+  .m3-theme-toggle {
+    left: auto;
+    right: 22px;
+    bottom: 22px;
+    border: 0;
+    background: var(--m3-secondary-container);
+    color: var(--m3-on-secondary-container);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+  }
+}
+
+/* Phones: the rail comes back as an M3 bottom navigation bar. */
 @media (max-width: 767px) {
+  .m3-menu-btn { display: none; }
+  .m3-drawer { display: none !important; }
   .m3-rail {
+    display: flex;
     top: auto;
     bottom: 0;
     left: 0;
@@ -233,8 +357,8 @@ body {
     align-items: flex-start;
     gap: 0;
     padding: 8px 4px calc(10px + env(safe-area-inset-bottom));
-    background: var(--m3-surface-c1);
-    border-top: 1px solid var(--m3-outline-variant);
+    background: var(--m3-rail);
+    border-top: 0;
   }
   .m3-rail-item { width: auto; flex: 1 1 0; min-width: 0; }
   .m3-rail-label {
@@ -244,28 +368,6 @@ body {
     white-space: nowrap;
   }
   .m3-rail-on .pf-v5-c-page__main { padding-left: 0; padding-bottom: 96px; }
-}
-
-/* Theme toggle (fixed, injected by js/material3.js) */
-.m3-theme-toggle {
-  position: fixed;
-  z-index: 260;
-  right: 22px;
-  bottom: 22px;
-  width: 48px;
-  height: 48px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--m3-secondary-container);
-  color: var(--m3-on-secondary-container);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
-}
-.m3-theme-toggle svg { width: 22px; height: 22px; }
-@media (max-width: 767px) {
   .m3-theme-toggle { bottom: calc(96px + env(safe-area-inset-bottom)); }
 }
 
@@ -280,14 +382,18 @@ body {
   background: var(--m3-surface);
 }
 
-.pf-v5-c-title {
-  letter-spacing: -.02em;
-  font-weight: 700;
+/* m3.material.io sets headlines in Google Sans at a medium weight with
+   normal tracking — no tight letter-spacing, no heavy bold. */
+.pf-v5-c-title,
+h1, h2, h3 {
+  font-family: "Google Sans", "Google Sans Text", "Roboto", sans-serif;
+  letter-spacing: normal;
+  font-weight: 500;
 }
 
-/* Cards → M3 surface containers */
+/* Cards → M3 surface containers (the site's panels: #F8F1F6, radius 24) */
 .pf-v5-c-card {
-  --pf-v5-c-card--BackgroundColor: var(--m3-surface-c2);
+  --pf-v5-c-card--BackgroundColor: var(--m3-surface-c1);
   border-radius: 24px;
   box-shadow: none;
   border: 0;
@@ -301,12 +407,13 @@ body {
 
 /* ── Buttons ──────────────────────────────────────────────────────────── */
 
+/* m3.material.io buttons: full pills, no corner morphing, Google Sans label */
 .pf-v5-c-button {
-  border-radius: 21px;
-  font-weight: 600;
-  transition: border-radius .3s cubic-bezier(.3, 1.4, .4, 1), background .2s;
+  border-radius: 100px;
+  font-family: "Google Sans", "Google Sans Text", "Roboto", sans-serif;
+  font-weight: 500;
+  transition: background .2s;
 }
-.pf-v5-c-button:hover { border-radius: 13px; }
 .pf-v5-c-button.pf-m-plain,
 .pf-v5-c-button.pf-m-plain:hover { border-radius: 50%; }
 .pf-v5-c-button.pf-m-plain:hover { background: var(--m3-surface-c3); }
@@ -351,6 +458,22 @@ body {
 .pf-v5-theme-dark .pf-v5-c-form-control {
   border-radius: 12px;
   --pf-v5-c-form-control--BackgroundColor: var(--m3-surface-c3);
+}
+/* PF paints a contrasting underline with ::after (a white stripe in dark);
+   replace it with M3-style focus / error rings. */
+.pf-v5-c-form-control::after,
+.pf-v5-theme-dark .pf-v5-c-form-control::after {
+  border: 0 !important;
+}
+.pf-v5-c-form-control:focus-within,
+.pf-v5-theme-dark .pf-v5-c-form-control:focus-within {
+  outline: 2px solid var(--m3-primary);
+  outline-offset: -2px;
+}
+.pf-v5-c-form-control.pf-m-error,
+.pf-v5-theme-dark .pf-v5-c-form-control.pf-m-error {
+  outline: 2px solid var(--m3-error);
+  outline-offset: -2px;
 }
 
 /* Switches pick up the primary color via --pf-v5-global--primary-color--100 */
@@ -473,6 +596,15 @@ body {
   min-width: 40px;
   height: 40px;
   margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.pf-v5-c-button.pf-m-control .pf-v5-c-button__icon,
+.pf-v5-theme-dark .pf-v5-c-button.pf-m-control .pf-v5-c-button__icon {
+  margin: 0;
+  display: flex;
 }
 .pf-v5-c-button.pf-m-control::after,
 .pf-v5-theme-dark .pf-v5-c-button.pf-m-control::after { border: 0 !important; }

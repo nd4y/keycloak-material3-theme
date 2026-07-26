@@ -1,27 +1,32 @@
 /* ═══════════════════════════════════════════════════════════════════════
    Material 3 Expressive theme for Keycloak — login pages
-   Tokens are generated from seed #6750A4 (Material Theme Builder).
+   Palette and typography mirror m3.material.io itself.
    Light/dark follows the system via prefers-color-scheme, no JS involved.
    ═══════════════════════════════════════════════════════════════════════ */
 
+/* Same faces m3.material.io uses; served by Google Fonts. If you must avoid
+   the Google Fonts CDN (privacy), delete this line — the stack falls back
+   to Roboto/system fonts. */
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Text:wght@400;500;700&display=swap");
+
 :root {
-  --m3-primary: #6750A4;
+  --m3-primary: #6442D6;
   --m3-on-primary: #FFFFFF;
-  --m3-primary-container: #EADDFF;
-  --m3-on-primary-container: #21005D;
-  --m3-secondary-container: #E8DEF8;
-  --m3-on-secondary-container: #1D192B;
+  --m3-primary-container: #F1D3F9;
+  --m3-on-primary-container: #35194A;
+  --m3-secondary-container: #DCDAF5;
+  --m3-on-secondary-container: #21182B;
   --m3-tertiary-container: #FFD8E4;
   --m3-on-tertiary-container: #31111D;
-  --m3-surface: #FEF7FF;
-  --m3-surface-c1: #F7F2FA;
-  --m3-surface-c2: #F3EDF7;
-  --m3-surface-c3: #ECE6F0;
-  --m3-surface-c4: #E6E0E9;
-  --m3-on-surface: #1D1B20;
-  --m3-on-surface-variant: #49454F;
-  --m3-outline: #79747E;
-  --m3-outline-variant: #CAC4D0;
+  --m3-surface: #FEFBFF;
+  --m3-surface-c1: #F8F1F6;
+  --m3-surface-c2: #F2ECEE;
+  --m3-surface-c3: #ECE5EB;
+  --m3-surface-c4: #E5DEE4;
+  --m3-on-surface: #1C1B1D;
+  --m3-on-surface-variant: #4D4256;
+  --m3-outline: #7A737C;
+  --m3-outline-variant: #C9C2CC;
   --m3-error: #B3261E;
   --m3-error-container: #F9DEDC;
   --m3-on-error-container: #410E0B;
@@ -31,7 +36,7 @@
   --m3-on-warning-container: #4E3B00;
   --m3-info-container: #DCE6FA;
   --m3-on-info-container: #0F2A5C;
-  --m3-social-chip: #F3EDF7;
+  --m3-social-chip: #F2ECEE;
   --m3-shadow: 0 10px 34px rgba(30, 20, 60, .12);
   --m3-good: #2E7D32;
   --m3-toggle-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 13A8 8 0 1 1 11 4a6.5 6.5 0 0 0 9 9z'/%3E%3C/svg%3E");
@@ -41,23 +46,23 @@
    and from the explicit toggle. Keep both blocks identical. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-m3-theme="light"]) {
-    --m3-primary: #D0BCFF;
-    --m3-on-primary: #381E72;
-    --m3-primary-container: #4F378B;
-    --m3-on-primary-container: #EADDFF;
-    --m3-secondary-container: #4A4458;
-    --m3-on-secondary-container: #E8DEF8;
+    --m3-primary: #9F86FF;
+    --m3-on-primary: #1A0056;
+    --m3-primary-container: #553F5D;
+    --m3-on-primary-container: #F1D3F9;
+    --m3-secondary-container: #45455A;
+    --m3-on-secondary-container: #E2E0FB;
     --m3-tertiary-container: #633B48;
     --m3-on-tertiary-container: #FFD8E4;
-    --m3-surface: #141218;
-    --m3-surface-c1: #1D1B20;
-    --m3-surface-c2: #211F26;
-    --m3-surface-c3: #2B2930;
-    --m3-surface-c4: #36343B;
-    --m3-on-surface: #E6E0E9;
-    --m3-on-surface-variant: #CAC4D0;
-    --m3-outline: #938F99;
-    --m3-outline-variant: #49454F;
+    --m3-surface: #141314;
+    --m3-surface-c1: #1C1B1D;
+    --m3-surface-c2: #211F21;
+    --m3-surface-c3: #2A282B;
+    --m3-surface-c4: #343235;
+    --m3-on-surface: #E6E1E3;
+    --m3-on-surface-variant: #CBC4CC;
+    --m3-outline: #918D93;
+    --m3-outline-variant: #47464A;
     --m3-error: #F2B8B5;
     --m3-error-container: #8C1D18;
     --m3-on-error-container: #F9DEDC;
@@ -67,30 +72,30 @@
     --m3-on-warning-container: #F8E3A3;
     --m3-info-container: #17356B;
     --m3-on-info-container: #D6E2FB;
-    --m3-social-chip: #E6E0E9;
+    --m3-social-chip: #E6E1E3;
     --m3-shadow: 0 10px 34px rgba(0, 0, 0, .45);
     --m3-good: #81C784;
     --m3-toggle-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4'/%3E%3C/svg%3E");
   }
 }
 :root[data-m3-theme="dark"] {
-  --m3-primary: #D0BCFF;
-  --m3-on-primary: #381E72;
-  --m3-primary-container: #4F378B;
-  --m3-on-primary-container: #EADDFF;
-  --m3-secondary-container: #4A4458;
-  --m3-on-secondary-container: #E8DEF8;
+  --m3-primary: #9F86FF;
+  --m3-on-primary: #1A0056;
+  --m3-primary-container: #553F5D;
+  --m3-on-primary-container: #F1D3F9;
+  --m3-secondary-container: #45455A;
+  --m3-on-secondary-container: #E2E0FB;
   --m3-tertiary-container: #633B48;
   --m3-on-tertiary-container: #FFD8E4;
-  --m3-surface: #141218;
-  --m3-surface-c1: #1D1B20;
-  --m3-surface-c2: #211F26;
-  --m3-surface-c3: #2B2930;
-  --m3-surface-c4: #36343B;
-  --m3-on-surface: #E6E0E9;
-  --m3-on-surface-variant: #CAC4D0;
-  --m3-outline: #938F99;
-  --m3-outline-variant: #49454F;
+  --m3-surface: #141314;
+  --m3-surface-c1: #1C1B1D;
+  --m3-surface-c2: #211F21;
+  --m3-surface-c3: #2A282B;
+  --m3-surface-c4: #343235;
+  --m3-on-surface: #E6E1E3;
+  --m3-on-surface-variant: #CBC4CC;
+  --m3-outline: #918D93;
+  --m3-outline-variant: #47464A;
   --m3-error: #F2B8B5;
   --m3-error-container: #8C1D18;
   --m3-on-error-container: #F9DEDC;
@@ -100,7 +105,7 @@
   --m3-on-warning-container: #F8E3A3;
   --m3-info-container: #17356B;
   --m3-on-info-container: #D6E2FB;
-  --m3-social-chip: #E6E0E9;
+  --m3-social-chip: #E6E1E3;
   --m3-shadow: 0 10px 34px rgba(0, 0, 0, .45);
   --m3-good: #81C784;
   --m3-toggle-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4'/%3E%3C/svg%3E");
@@ -123,7 +128,7 @@ body.m3-body {
   min-height: 100dvh;
   background: var(--m3-surface);
   color: var(--m3-on-surface);
-  font-family: "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: "Google Sans Text", "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -163,9 +168,10 @@ a:hover { text-decoration: underline; }
 }
 .m3-brand-text h2 {
   margin: 0 0 8px;
+  font-family: "Google Sans", "Google Sans Text", "Roboto", sans-serif;
   font-size: clamp(28px, 3.2vw, 42px);
-  font-weight: 800;
-  letter-spacing: -.03em;
+  font-weight: 500;
+  letter-spacing: normal;
   line-height: 1.1;
   text-wrap: balance;
 }
@@ -262,9 +268,10 @@ body.m3-exit .m3-card {
 .m3-help::backdrop { background: rgba(0, 0, 0, .45); }
 .m3-help h2 {
   margin: 0 0 12px;
+  font-family: "Google Sans", "Google Sans Text", "Roboto", sans-serif;
   font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -.01em;
+  font-weight: 500;
+  letter-spacing: normal;
 }
 .m3-help p { margin: 0 0 12px; font-size: 14.5px; color: var(--m3-on-surface-variant); line-height: 1.55; }
 .m3-help-actions { display: flex; justify-content: flex-end; margin-top: 6px; }
@@ -314,9 +321,10 @@ body[data-page-id="login-login-username"] .m3-try-another { display: none; }
 
 .m3-title {
   margin: 0 0 4px;
+  font-family: "Google Sans", "Google Sans Text", "Roboto", sans-serif;
   font-size: clamp(26px, 5vw, 32px);
-  font-weight: 700;
-  letter-spacing: -.02em;
+  font-weight: 500;
+  letter-spacing: normal;
   line-height: 1.15;
   text-wrap: balance;
 }
@@ -392,16 +400,16 @@ body[data-page-id="login-login-username"] .m3-try-another { display: none; }
   width: 100%;
   min-height: 58px;
   border: 0;
-  border-radius: 29px;
+  border-radius: 100px;
   background: var(--m3-primary);
   color: var(--m3-on-primary);
+  font-family: "Google Sans", "Google Sans Text", "Roboto", sans-serif;
   font-size: 16.5px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: border-radius .35s cubic-bezier(.3, 1.4, .4, 1), transform .2s, box-shadow .2s;
+  transition: transform .2s, box-shadow .2s, background .2s;
 }
 #authenticateWebAuthnButton:hover {
-  border-radius: 16px;
   text-decoration: none;
   box-shadow: 0 4px 14px rgba(0, 0, 0, .18);
 }
@@ -465,11 +473,11 @@ body[data-page-id="login-login-username"] .m3-try-another { display: none; }
   justify-content: center;
   width: 58px; height: 58px;
   border: 1px solid var(--m3-outline-variant);
-  border-radius: 29px;
+  border-radius: 100px;
   background: var(--m3-social-chip);
-  transition: border-radius .3s cubic-bezier(.3, 1.4, .4, 1), background .2s;
+  transition: background .2s;
 }
-.m3-social-btn:hover { border-radius: 17px; text-decoration: none; }
+.m3-social-btn:hover { background: var(--m3-surface-c4); text-decoration: none; }
 .m3-social-btn img { width: 26px; height: 26px; display: block; }
 .m3-social-btn.m3-disabled { opacity: .55; pointer-events: none; }
 
@@ -647,15 +655,15 @@ textarea.m3-input { resize: vertical; min-height: 90px; }
   min-height: 44px;
   padding: 10px 26px;
   border: 0;
-  border-radius: 22px;
-  font: inherit;
+  border-radius: 100px;
+  font-family: "Google Sans", "Google Sans Text", "Roboto", sans-serif;
   font-size: 14.5px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   text-align: center;
-  transition: border-radius .3s cubic-bezier(.3, 1.4, .4, 1), background .2s, box-shadow .2s;
+  transition: background .2s, box-shadow .2s;
 }
-.m3-btn:hover { border-radius: 14px; text-decoration: none; }
+.m3-btn:hover { text-decoration: none; }
 .m3-btn:active { transform: scale(.985); }
 
 .m3-btn-filled { background: var(--m3-primary); color: var(--m3-on-primary); }
@@ -665,8 +673,7 @@ textarea.m3-input { resize: vertical; min-height: 90px; }
 .m3-btn-text { background: transparent; color: var(--m3-primary); }
 .m3-btn-text:hover { background: var(--m3-surface-c2); }
 .m3-btn-block { display: flex; width: 100%; }
-.m3-btn-lg { min-height: 50px; border-radius: 25px; font-size: 15.5px; }
-.m3-btn-lg:hover { border-radius: 15px; }
+.m3-btn-lg { min-height: 50px; font-size: 15.5px; }
 
 .m3-buttons, .m3-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
 .m3-options { margin: 6px 0; font-size: 13.5px; }
@@ -699,9 +706,9 @@ textarea.m3-input { resize: vertical; min-height: 90px; }
   border: 1px solid var(--m3-outline-variant);
   border-radius: 20px;
   cursor: pointer;
-  transition: background .2s, border-radius .3s cubic-bezier(.3, 1.4, .4, 1);
+  transition: background .2s;
 }
-.m3-authlist-item:hover { background: var(--m3-surface-c2); border-radius: 14px; }
+.m3-authlist-item:hover { background: var(--m3-surface-c2); }
 .m3-authlist-heading { font-size: 15px; font-weight: 600; margin: 0; }
 .m3-authlist-desc { font-size: 13px; color: var(--m3-on-surface-variant); }
 .m3-authlist-icon { color: var(--m3-primary); }

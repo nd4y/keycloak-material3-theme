@@ -77,6 +77,10 @@ def test_login_pages(browser):
         check(f"login[{locale}]: social buttons", page.locator(".m3-social-btn").count() == 4)
         check(f"login[{locale}]: collapsed password form", page.locator("details.m3-pass-details").count() == 1)
         check(f"login[{locale}]: theme toggle present", page.locator("#m3-theme-toggle").count() == 1)
+        check(
+            f"login[{locale}]: ID favicon",
+            "img/favicon.svg" in (page.get_attribute('link[rel="icon"]', "href") or ""),
+        )
 
         if EXPECT_PASSKEY:
             check(
@@ -221,6 +225,34 @@ def test_account_console(browser):
         "account: filter field wide enough",
         page.evaluate("document.querySelector('.pf-v5-c-text-input-group').getBoundingClientRect().width >= 260"),
     )
+    placeholder = page.evaluate(
+        "document.querySelector('.pf-v5-c-text-input-group__text-input')?.placeholder || ''"
+    )
+    check(
+        "account: filter placeholder has no ellipsis",
+        placeholder != "" and not placeholder.rstrip().endswith(("...", "…")),
+        placeholder,
+    )
+    check(
+        "account: search arrow centered in its round button",
+        page.evaluate(
+            """(() => {
+              const b = document.querySelector('.pf-v5-c-button.pf-m-control');
+              const i = b && b.querySelector('svg');
+              if (!b || !i) return false;
+              const br = b.getBoundingClientRect(), ir = i.getBoundingClientRect();
+              return Math.abs((br.left + br.right) / 2 - (ir.left + ir.right) / 2) < 1.5
+                  && Math.abs((br.top + br.bottom) / 2 - (ir.top + ir.bottom) / 2) < 1.5;
+            })()"""
+        ),
+    )
+    check(
+        "account: ID favicon injected",
+        page.evaluate(
+            "(document.querySelector('link[rel=\\'icon\\']')?.href || '').includes('account/material3/img/favicon.svg')"
+        ),
+        page.evaluate("document.querySelector('link[rel=\\'icon\\']')?.href"),
+    )
     # Theme toggle.
     dark_before = page.evaluate("document.documentElement.classList.contains('pf-v5-theme-dark')")
     page.click("#m3-theme-toggle")
@@ -232,6 +264,50 @@ def test_account_console(browser):
     dark_reloaded = page.evaluate("document.documentElement.classList.contains('pf-v5-theme-dark')")
     check("account: toggle persists", dark_reloaded == dark_after)
     page.evaluate("localStorage.removeItem('m3-theme')")
+
+    # Fonts from m3.material.io (Google Sans) actually loaded.
+    page.wait_for_timeout(500)
+    check(
+        "account: Google Sans loaded",
+        page.evaluate("document.fonts.check('16px \"Google Sans\"') || document.fonts.check('16px \"Google Sans Text\"')"),
+    )
+
+    # Medium screens (768–1099): rail hides, hamburger + drawer appear.
+    med = browser.new_context(viewport={"width": 1000, "height": 800}, locale="en")
+    dpage = med.new_page()
+    dpage.goto(f"{BASE}/realms/demo/account/")
+    dpage.wait_for_selector("#kc-page-title", timeout=20000)
+    dpage.evaluate("document.querySelector('details.m3-pass-details').open = true")
+    dpage.fill("#username", "demo")
+    dpage.fill("#password", "demo1234")
+    dpage.click("#kc-login")
+    dpage.wait_for_selector(".m3-rail", timeout=25000, state="attached")
+    check(
+        "account[medium]: rail hidden",
+        dpage.evaluate("getComputedStyle(document.querySelector('.m3-rail')).display === 'none'"),
+    )
+    check(
+        "account[medium]: hamburger visible",
+        dpage.evaluate("getComputedStyle(document.querySelector('.m3-menu-btn')).display !== 'none'"),
+    )
+    dpage.click(".m3-menu-btn")
+    dpage.wait_for_timeout(500)
+    check(
+        "account[medium]: drawer opens",
+        dpage.evaluate("!document.querySelector('.m3-drawer').hidden && document.querySelector('.m3-drawer').classList.contains('m3-open')"),
+    )
+    check(
+        "account[medium]: drawer has items",
+        dpage.locator(".m3-drawer-item").count() >= 4,
+    )
+    dpage.click('.m3-drawer-item[href*="signing-in"]')
+    dpage.wait_for_timeout(1200)
+    check("account[medium]: drawer navigates", "signing-in" in dpage.url)
+    check(
+        "account[medium]: drawer closed after navigation",
+        dpage.evaluate("document.querySelector('.m3-drawer').hidden === true"),
+    )
+    med.close()
 
     # Mobile: the rail becomes a bottom navigation bar.
     mob = browser.new_context(viewport={"width": 390, "height": 844}, locale="en", is_mobile=True)

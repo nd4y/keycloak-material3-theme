@@ -46,29 +46,72 @@ still works — the button simply does not render.
 
 ## Installation
 
-The theme is a directory. Mount it (read-only) into the official image — no `kc.sh build`,
-no custom image:
+The theme is a plain directory that ends up mounted at `/opt/keycloak/themes/material3`
+inside the official Keycloak image — no `kc.sh build`, no custom Keycloak image. Pick
+whichever delivery method fits your setup.
+
+### Option A — theme image (recommended)
+
+The theme ships as a tiny carrier image
+(`ghcr.io/nd4y/keycloak-theme-material3`, busybox + theme files, multi-arch). On start it
+copies the theme into a shared volume and exits; Keycloak mounts that volume. Nothing to
+place on the host — everything comes from registries, and upgrading the theme is
+`docker compose pull` + re-deploy:
 
 ```yaml
 # docker-compose.yml
+volumes:
+  material3-theme:
+
+services:
+  theme:
+    image: ghcr.io/nd4y/keycloak-theme-material3:latest
+    restart: "no"
+    volumes:
+      - material3-theme:/target
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3
+    command: start
+    depends_on:
+      theme:
+        condition: service_completed_successfully
+    volumes:
+      - material3-theme:/opt/keycloak/themes/material3:ro
+    # ... the rest of your configuration
+```
+
+Kubernetes — same idea with an init container:
+
+```yaml
+initContainers:
+  - name: material3-theme
+    image: ghcr.io/nd4y/keycloak-theme-material3:latest
+    command: ["sh", "-c", "cp -a /theme/material3/. /target/"]
+    volumeMounts:
+      - { name: material3-theme, mountPath: /target }
+containers:
+  - name: keycloak
+    volumeMounts:
+      - { name: material3-theme, mountPath: /opt/keycloak/themes/material3, readOnly: true }
+volumes:
+  - { name: material3-theme, emptyDir: {} }
+```
+
+Tags: `latest` (main branch), `X.Y.Z` / `X.Y` (releases), `sha-<commit>` for pinning.
+
+### Option B — bind-mount the directory
+
+Clone the repo and mount the theme directly:
+
+```yaml
 services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.3
     command: start
     volumes:
       - ./keycloak-theme-material3/theme/material3:/opt/keycloak/themes/material3:ro
-    # ... the rest of your configuration
 ```
-
-Plain `docker run`:
-
-```bash
-docker run -v $PWD/keycloak-theme-material3/theme/material3:/opt/keycloak/themes/material3:ro \
-  quay.io/keycloak/keycloak:26.3 start
-```
-
-Kubernetes: put the theme into an init-container image, a `ConfigMap` (it is only text + small
-SVGs), or a persistent volume, and mount it at `/opt/keycloak/themes/material3`.
 
 Bare metal: copy `theme/material3` to `/opt/keycloak/themes/material3`.
 

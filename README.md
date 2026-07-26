@@ -67,6 +67,7 @@ services:
   theme:
     image: ghcr.io/nd4y/keycloak-theme-material3:latest
     restart: "no"
+    network_mode: "none"   # it only copies files — no network needed
     volumes:
       - material3-theme:/target
 

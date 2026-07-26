@@ -20,6 +20,8 @@
   --m3-on-surface: #1D1B20;
   --m3-on-surface-variant: #49454F;
   --m3-outline-variant: #CAC4D0;
+  --m3-error-container: #F9DEDC;
+  --m3-on-error-container: #8C1D18;
 }
 
 .pf-v5-theme-dark {
@@ -37,6 +39,8 @@
   --m3-on-surface: #E6E0E9;
   --m3-on-surface-variant: #CAC4D0;
   --m3-outline-variant: #49454F;
+  --m3-error-container: #8C1D18;
+  --m3-on-error-container: #F9DEDC;
 }
 
 /* ── Global PF token overrides ────────────────────────────────────────── */
@@ -76,10 +80,16 @@ body {
   border-bottom: 1px solid var(--m3-outline-variant);
 }
 .pf-v5-c-masthead__content, .pf-v5-c-masthead__main { background: transparent; }
-.pf-v5-c-masthead .pf-v5-c-toolbar,
-.pf-v5-theme-dark .pf-v5-c-masthead .pf-v5-c-toolbar {
+.pf-v5-c-toolbar,
+.pf-v5-theme-dark .pf-v5-c-toolbar,
+.pf-v5-c-toolbar__content,
+.pf-v5-theme-dark .pf-v5-c-toolbar__content {
   --pf-v5-c-toolbar--BackgroundColor: transparent;
   background: transparent;
+}
+.pf-v5-c-page__header,
+.pf-v5-theme-dark .pf-v5-c-page__header {
+  background: var(--m3-surface-c1);
 }
 .pf-v5-c-masthead .pf-v5-c-brand { max-height: 40px; }
 
@@ -115,7 +125,7 @@ body {
 .pf-v5-c-page__sidebar-body { padding-inline: 10px; }
 
 .pf-v5-c-nav__link {
-  border-radius: 999px;
+  border-radius: 20px;
   margin-block: 2px;
   font-size: 14.5px;
   color: var(--m3-on-surface-variant);
@@ -123,7 +133,7 @@ body {
 }
 .pf-v5-c-nav__link:hover {
   background: var(--m3-surface-c3);
-  border-radius: 16px;
+  border-radius: 13px;
   color: var(--m3-on-surface);
 }
 .pf-v5-c-nav__item.pf-m-current > .pf-v5-c-nav__link,
@@ -138,8 +148,13 @@ body {
 
 /* ── Content area ─────────────────────────────────────────────────────── */
 
-.pf-v5-c-page__main-section {
+.pf-v5-c-page,
+.pf-v5-theme-dark .pf-v5-c-page,
+.pf-v5-c-page__main-section,
+.pf-v5-theme-dark .pf-v5-c-page__main-section {
+  --pf-v5-c-page--BackgroundColor: var(--m3-surface);
   --pf-v5-c-page__main-section--BackgroundColor: var(--m3-surface);
+  background: var(--m3-surface);
 }
 
 .pf-v5-c-title {
@@ -164,33 +179,48 @@ body {
 /* ── Buttons ──────────────────────────────────────────────────────────── */
 
 .pf-v5-c-button {
-  border-radius: 999px;
+  border-radius: 21px;
   font-weight: 600;
   transition: border-radius .3s cubic-bezier(.3, 1.4, .4, 1), background .2s;
 }
-.pf-v5-c-button:hover { border-radius: 14px; }
-.pf-v5-c-button.pf-m-plain { border-radius: 50%; }
-.pf-v5-c-button.pf-m-plain:hover { border-radius: 50%; background: var(--m3-surface-c3); }
+.pf-v5-c-button:hover { border-radius: 13px; }
+.pf-v5-c-button.pf-m-plain,
+.pf-v5-c-button.pf-m-plain:hover { border-radius: 50%; }
+.pf-v5-c-button.pf-m-plain:hover { background: var(--m3-surface-c3); }
 
-.pf-v5-c-button.pf-m-primary {
+.pf-v5-c-button.pf-m-primary,
+.pf-v5-theme-dark .pf-v5-c-button.pf-m-primary {
   background: var(--m3-primary);
   color: var(--m3-on-primary);
 }
-.pf-v5-c-button.pf-m-primary:hover {
+.pf-v5-c-button.pf-m-primary:hover,
+.pf-v5-theme-dark .pf-v5-c-button.pf-m-primary:hover {
   background: var(--m3-primary-hover);
   color: var(--m3-on-primary);
 }
-.pf-v5-c-button.pf-m-secondary {
+.pf-v5-c-button.pf-m-secondary,
+.pf-v5-theme-dark .pf-v5-c-button.pf-m-secondary {
   background: var(--m3-secondary-container);
   color: var(--m3-on-secondary-container);
   border: 0;
 }
-.pf-v5-c-button.pf-m-secondary:hover {
+.pf-v5-c-button.pf-m-secondary:hover,
+.pf-v5-theme-dark .pf-v5-c-button.pf-m-secondary:hover {
   background: var(--m3-secondary-container);
   color: var(--m3-on-secondary-container);
 }
-.pf-v5-c-button.pf-m-danger { border-radius: 999px; }
-.pf-v5-c-button.pf-m-danger:hover { border-radius: 14px; }
+/* Destructive actions → M3 error-container tones instead of PF bright red */
+.pf-v5-c-button.pf-m-danger,
+.pf-v5-theme-dark .pf-v5-c-button.pf-m-danger {
+  background: var(--m3-error-container);
+  color: var(--m3-on-error-container);
+  border: 0;
+}
+.pf-v5-c-button.pf-m-danger:hover,
+.pf-v5-theme-dark .pf-v5-c-button.pf-m-danger:hover {
+  background: var(--m3-error-container);
+  color: var(--m3-on-error-container);
+}
 
 /* ── Forms ────────────────────────────────────────────────────────────── */
 
@@ -206,6 +236,108 @@ body {
 .pf-v5-c-alert { border-radius: 16px; }
 .pf-v5-c-modal-box { border-radius: 28px; }
 .pf-v5-c-menu { border-radius: 16px; }
+
+/* ── Dark-theme specificity fixes ─────────────────────────────────────────
+   PatternFly's dark theme re-declares many component tokens under
+   .pf-v5-theme-dark <component>, which outranks plain component selectors.
+   Everything below is declared for both grounds explicitly. ── */
+
+.pf-v5-c-card,
+.pf-v5-theme-dark .pf-v5-c-card {
+  --pf-v5-c-card--BackgroundColor: var(--m3-surface-c2);
+  background: var(--m3-surface-c2);
+}
+
+.pf-v5-c-data-list__item,
+.pf-v5-theme-dark .pf-v5-c-data-list__item {
+  background: transparent;
+  border-color: var(--m3-outline-variant);
+}
+
+/* Link-style buttons (Link account / Unlink account / Update) */
+.pf-v5-c-button.pf-m-link,
+.pf-v5-theme-dark .pf-v5-c-button.pf-m-link {
+  color: var(--m3-primary);
+}
+.pf-v5-c-button.pf-m-link:hover,
+.pf-v5-theme-dark .pf-v5-c-button.pf-m-link:hover {
+  color: var(--m3-primary-hover);
+}
+
+/* Status labels (Social login / System defined) → tonal chips */
+.pf-v5-c-label,
+.pf-v5-theme-dark .pf-v5-c-label {
+  border-radius: 999px;
+}
+.pf-v5-c-label.pf-m-blue,
+.pf-v5-theme-dark .pf-v5-c-label.pf-m-blue {
+  --pf-v5-c-label--BackgroundColor: var(--m3-secondary-container);
+  background: var(--m3-secondary-container);
+}
+.pf-v5-c-label.pf-m-blue .pf-v5-c-label__content,
+.pf-v5-c-label.pf-m-blue .pf-v5-c-label__text,
+.pf-v5-theme-dark .pf-v5-c-label.pf-m-blue .pf-v5-c-label__content,
+.pf-v5-theme-dark .pf-v5-c-label.pf-m-blue .pf-v5-c-label__text {
+  color: var(--m3-on-secondary-container);
+}
+.pf-v5-c-label.pf-m-green,
+.pf-v5-theme-dark .pf-v5-c-label.pf-m-green {
+  --pf-v5-c-label--BackgroundColor: var(--m3-primary-container);
+  background: var(--m3-primary-container);
+}
+.pf-v5-c-label.pf-m-green .pf-v5-c-label__content,
+.pf-v5-c-label.pf-m-green .pf-v5-c-label__text,
+.pf-v5-theme-dark .pf-v5-c-label.pf-m-green .pf-v5-c-label__content,
+.pf-v5-theme-dark .pf-v5-c-label.pf-m-green .pf-v5-c-label__text {
+  color: var(--m3-on-primary-container);
+}
+
+/* Search / filter inputs in toolbars */
+.pf-v5-c-text-input-group,
+.pf-v5-theme-dark .pf-v5-c-text-input-group {
+  background: var(--m3-surface-c3);
+  border-radius: 12px;
+}
+.pf-v5-c-text-input-group__text-input,
+.pf-v5-theme-dark .pf-v5-c-text-input-group__text-input {
+  background: transparent;
+  color: var(--m3-on-surface);
+}
+
+/* ── Identity-provider icons in Linked accounts ───────────────────────────
+   The console renders built-in monochrome icons; swap them for the same
+   brand SVGs the login page uses. Rows carry id="<alias>-idp".
+   For a new provider: drop img/providers/<alias>.svg and add two rules. ── */
+
+#google-idp .pf-v5-c-icon__content,
+#github-idp .pf-v5-c-icon__content,
+#gitlab-idp .pf-v5-c-icon__content,
+#telegram-idp .pf-v5-c-icon__content {
+  display: block;
+  width: 26px;
+  height: 26px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+#google-idp .pf-v5-c-icon__content svg,
+#github-idp .pf-v5-c-icon__content svg,
+#gitlab-idp .pf-v5-c-icon__content svg,
+#telegram-idp .pf-v5-c-icon__content svg {
+  display: none;
+}
+#google-idp .pf-v5-c-icon__content { background-image: url("../img/providers/google.svg"); }
+#github-idp .pf-v5-c-icon__content { background-image: url("../img/providers/github.svg"); }
+#gitlab-idp .pf-v5-c-icon__content { background-image: url("../img/providers/gitlab.svg"); }
+#telegram-idp .pf-v5-c-icon__content { background-image: url("../img/providers/telegram.svg"); }
+
+/* GitHub's mark is near-black — render it via mask in dark mode so it stays visible */
+.pf-v5-theme-dark #github-idp .pf-v5-c-icon__content {
+  background-image: none;
+  background-color: var(--m3-on-surface);
+  -webkit-mask: url("../img/providers/github.svg") center / contain no-repeat;
+  mask: url("../img/providers/github.svg") center / contain no-repeat;
+}
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }

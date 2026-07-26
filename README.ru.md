@@ -94,7 +94,7 @@ passkey использует preview-функцию `passkeys` (см. ниже);
 ### Вариант A — образ темы (рекомендуется)
 
 Тема поставляется компактным образом-носителем
-(`ghcr.io/nd4y/keycloak-theme-material3`, busybox + файлы темы, мультиархитектурный).
+(`ghcr.io/nd4y/keycloak-material3-theme`, busybox + файлы темы, мультиархитектурный).
 При старте он копирует тему в общий том и завершается; Keycloak монтирует этот том.
 На хосте размещать нечего — всё приходит из реестров, а обновление темы — это
 `docker compose pull` + повторный деплой:
@@ -106,7 +106,7 @@ volumes:
 
 services:
   theme:
-    image: ghcr.io/nd4y/keycloak-theme-material3:latest
+    image: ghcr.io/nd4y/keycloak-material3-theme:latest
     restart: "no"
     network_mode: "none"   # образ только копирует файлы — сеть не нужна
     volumes:
@@ -128,7 +128,7 @@ Kubernetes — та же идея через init-контейнер:
 ```yaml
 initContainers:
   - name: material3-theme
-    image: ghcr.io/nd4y/keycloak-theme-material3:latest
+    image: ghcr.io/nd4y/keycloak-material3-theme:latest
     command: ["sh", "-c", "cp -a /theme/material3/. /target/"]
     volumeMounts:
       - { name: material3-theme, mountPath: /target }
@@ -152,7 +152,7 @@ services:
     image: quay.io/keycloak/keycloak:26.3
     command: start
     volumes:
-      - ./keycloak-theme-material3/theme/material3:/opt/keycloak/themes/material3:ro
+      - ./keycloak-material3-theme/theme/material3:/opt/keycloak/themes/material3:ro
 ```
 
 Bare metal: скопируйте `theme/material3` в `/opt/keycloak/themes/material3`.

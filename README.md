@@ -89,7 +89,7 @@ whichever delivery method fits your setup.
 ### Option A — theme image (recommended)
 
 The theme ships as a tiny carrier image
-(`ghcr.io/nd4y/keycloak-theme-material3`, busybox + theme files, multi-arch). On start it
+(`ghcr.io/nd4y/keycloak-material3-theme`, busybox + theme files, multi-arch). On start it
 copies the theme into a shared volume and exits; Keycloak mounts that volume. Nothing to
 place on the host — everything comes from registries, and upgrading the theme is
 `docker compose pull` + re-deploy:
@@ -101,7 +101,7 @@ volumes:
 
 services:
   theme:
-    image: ghcr.io/nd4y/keycloak-theme-material3:latest
+    image: ghcr.io/nd4y/keycloak-material3-theme:latest
     restart: "no"
     network_mode: "none"   # it only copies files — no network needed
     volumes:
@@ -123,7 +123,7 @@ Kubernetes — same idea with an init container:
 ```yaml
 initContainers:
   - name: material3-theme
-    image: ghcr.io/nd4y/keycloak-theme-material3:latest
+    image: ghcr.io/nd4y/keycloak-material3-theme:latest
     command: ["sh", "-c", "cp -a /theme/material3/. /target/"]
     volumeMounts:
       - { name: material3-theme, mountPath: /target }
@@ -147,7 +147,7 @@ services:
     image: quay.io/keycloak/keycloak:26.3
     command: start
     volumes:
-      - ./keycloak-theme-material3/theme/material3:/opt/keycloak/themes/material3:ro
+      - ./keycloak-material3-theme/theme/material3:/opt/keycloak/themes/material3:ro
 ```
 
 Bare metal: copy `theme/material3` to `/opt/keycloak/themes/material3`.

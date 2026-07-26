@@ -1,5 +1,7 @@
 # Keycloak Material 3 Theme
 
+**English** | [Русский](README.ru.md)
+
 ![Material 3 Expressive for Keycloak](docs/hero.png)
 
 A [Material 3 Expressive](https://m3.material.io/) theme for Keycloak covering the login

@@ -60,37 +60,62 @@ HTML = """<!DOCTYPE html>
   .chip.filled { background: #6442D6; color: #fff; }
 
   .stage { position: absolute; right: 0; top: 0; width: 1660px; height: 1280px;
-           perspective: 3200px; z-index: 2; }
+           perspective: 3600px; z-index: 2; }
 
-  .laptop { position: absolute; right: 420px; top: 170px; width: 1060px;
-            transform: rotateY(-10deg) rotateX(3deg); transform-style: preserve-3d; }
-  .laptop .screen { border-radius: 26px; padding: 16px; background: #1c1b1d;
-                    box-shadow: 0 60px 120px rgba(30, 20, 60, .35); }
-  .laptop .screen img { display: block; width: 100%; border-radius: 14px; }
-  .laptop .base { margin: 0 -60px; height: 26px; border-radius: 0 0 22px 22px;
-                  background: linear-gradient(#e8e2ea, #c9c2cc);
-                  box-shadow: 0 30px 60px rgba(30, 20, 60, .25); }
-  .laptop .base::before { content: ""; display: block; margin: 0 auto; width: 180px; height: 10px;
-                          border-radius: 0 0 12px 12px; background: #b3adb8; }
+  /* Screens carry a soft diagonal glass glare. */
+  .glass { position: relative; }
+  .glass::after { content: ""; position: absolute; inset: 0; border-radius: inherit;
+                  pointer-events: none;
+                  background: linear-gradient(112deg,
+                    rgba(255,255,255,.16) 0%, rgba(255,255,255,.06) 26%,
+                    rgba(255,255,255,0) 42%); }
 
-  .tablet { position: absolute; right: 64px; top: 84px; width: 470px;
-            transform: rotateY(-14deg) rotateX(2deg);
-            border-radius: 34px; padding: 18px; background: #1c1b1d;
-            box-shadow: 0 50px 100px rgba(30, 20, 60, .38); }
+  .laptop { position: absolute; right: 430px; top: 190px; width: 1100px;
+            transform: rotateY(-6deg) rotateX(2deg); transform-style: preserve-3d;
+            filter: drop-shadow(0 70px 90px rgba(30, 20, 60, .30))
+                    drop-shadow(0 14px 22px rgba(30, 20, 60, .22)); }
+  .laptop .lid { border-radius: 22px 22px 0 0; padding: 12px 12px 10px;
+                 background: linear-gradient(180deg, #2a2a2e 0%, #101013 60%, #060608 100%);
+                 box-shadow: inset 0 1px 1px rgba(255,255,255,.22),
+                             inset 0 -1px 0 rgba(0,0,0,.6); }
+  .laptop .lid img { display: block; width: 100%; border-radius: 10px; }
+  .laptop .deck { height: 30px; margin: 0 -74px; position: relative;
+                  border-radius: 4px 4px 18px 18px;
+                  background: linear-gradient(180deg, #f2eef4 0%, #d8d2dc 45%, #aca5b2 92%, #837c89 100%);
+                  box-shadow: inset 0 1px 0 rgba(255,255,255,.85),
+                              inset 0 -2px 3px rgba(0,0,0,.28); }
+  .laptop .deck::before { content: ""; position: absolute; top: 0; left: 50%;
+                          transform: translateX(-50%);
+                          width: 190px; height: 13px; border-radius: 0 0 14px 14px;
+                          background: linear-gradient(180deg, #b7b0bd, #cdc7d2); }
+
+  .tablet { position: absolute; right: 60px; top: 84px; width: 480px;
+            transform: rotateY(-9deg) rotateX(1.5deg);
+            border-radius: 30px; padding: 13px;
+            background: linear-gradient(145deg, #34343a 0%, #131316 55%, #08080a 100%);
+            box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.14),
+                        0 60px 90px rgba(30, 20, 60, .34),
+                        0 12px 24px rgba(30, 20, 60, .25); }
   .tablet img { display: block; width: 100%; border-radius: 18px; }
 
-  .phone { position: absolute; right: 348px; bottom: 96px; width: 300px;
-           transform: rotateY(8deg) rotateZ(-3deg);
-           border-radius: 46px; padding: 14px; background: #1c1b1d;
-           box-shadow: 0 50px 110px rgba(30, 20, 60, .45); z-index: 6; }
-  .phone img { display: block; width: 100%; border-radius: 34px; }
-  .phone::after { content: ""; position: absolute; top: 26px; left: 50%; margin-left: -7px;
-                  width: 14px; height: 14px; border-radius: 50%; background: #000; }
+  .phone { position: absolute; right: 352px; bottom: 104px; width: 305px;
+           transform: rotateY(5deg) rotateZ(-2deg);
+           border-radius: 50px; padding: 11px;
+           background: linear-gradient(150deg, #3c3c42 0%, #17171a 50%, #050507 100%);
+           box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.18),
+                       0 50px 90px rgba(30, 20, 60, .42),
+                       0 12px 22px rgba(30, 20, 60, .30);
+           z-index: 6; }
+  .phone img { display: block; width: 100%; border-radius: 40px; }
+  .phone .cam { position: absolute; top: 24px; left: 50%; margin-left: -6px;
+                width: 12px; height: 12px; border-radius: 50%;
+                background: radial-gradient(circle at 35% 35%, #2c2c34 0%, #000 70%);
+                box-shadow: inset 0 0 2px rgba(255,255,255,.25); }
 </style></head>
 <body>
   <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
   <div class="copy">
-    <div class="badge"><img src="__FAVICON__" alt=""><span>keycloak-theme-material3</span></div>
+    <div class="badge"><img src="__FAVICON__" alt=""><span>Keycloak Material 3 Theme</span></div>
     <h1>Material&nbsp;3 Expressive<br>for <em>Keycloak</em></h1>
     <p>Passkey-first login and a fully re-imagined Account Console — styled to
        match m3.material.io, down to the pixel.</p>
@@ -102,12 +127,12 @@ HTML = """<!DOCTYPE html>
     </div>
   </div>
   <div class="stage">
-    <div class="tablet"><img src="__TABLET__" alt=""></div>
+    <div class="tablet glass"><img src="__TABLET__" alt=""></div>
     <div class="laptop">
-      <div class="screen"><img src="__LAPTOP__" alt=""></div>
-      <div class="base"></div>
+      <div class="lid glass"><img src="__LAPTOP__" alt=""></div>
+      <div class="deck"></div>
     </div>
-    <div class="phone"><img src="__PHONE__" alt=""></div>
+    <div class="phone glass"><img src="__PHONE__" alt=""><span class="cam"></span></div>
   </div>
 </body></html>
 """

@@ -74,6 +74,10 @@
 :root { color-scheme: light; }
 :root.pf-v5-theme-dark { color-scheme: dark; }
 
+/* Reserve the scrollbar gutter so short↔tall page switches don't nudge the
+   layout horizontally when the scrollbar appears/disappears. */
+html { scrollbar-gutter: stable; }
+
 body {
   background: var(--m3-surface);
   color: var(--m3-on-surface);

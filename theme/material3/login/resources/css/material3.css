@@ -110,7 +110,7 @@
 
 * { box-sizing: border-box; }
 
-html.m3-html { height: 100%; }
+html.m3-html { height: 100%; scrollbar-gutter: stable; }
 
 /* Keep UA colors (form controls, scrollbars) in sync with the effective theme */
 :root { color-scheme: light dark; }

@@ -184,6 +184,12 @@ def test_account_console(browser):
     )
     rail_items = page.locator(".m3-rail-item").count()
     check("account: rail has flattened destinations", rail_items >= 4, f"items={rail_items}")
+    page.wait_for_selector(".m3-brand-mark", timeout=10000)
+    check(
+        "account: brand shows realm name + ID badge",
+        page.locator(".m3-brand-name").inner_text() == "demo"
+        and page.locator(".m3-brand-badge").inner_text() == "ID",
+    )
     check(
         "account: PF sidebar hidden",
         page.evaluate(

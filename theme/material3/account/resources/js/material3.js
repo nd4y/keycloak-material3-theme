@@ -196,10 +196,43 @@ function initRail() {
   setTimeout(() => obs.disconnect(), 20000);
 }
 
+/* ── masthead brand: "<realm> ID" ────────────────────────────────────────
+   Replaces the stock Keycloak logo with the realm name (taken from the
+   console's environment JSON — nothing installation-specific lives in the
+   theme) plus a neutral "ID" badge. ── */
+
+function initBrand() {
+  let realmName = "";
+  try {
+    realmName = JSON.parse(document.getElementById("environment").textContent).realm || "";
+  } catch (e) { /* keep default logo */ }
+  if (!realmName) return;
+
+  const apply = () => {
+    const brand = document.querySelector(".pf-v5-c-masthead__brand");
+    if (!brand || brand.querySelector(".m3-brand-mark")) return !!brand;
+    const mark = document.createElement("span");
+    mark.className = "m3-brand-mark";
+    mark.innerHTML =
+      `<span class="m3-brand-name"></span><span class="m3-brand-badge">ID</span>`;
+    mark.querySelector(".m3-brand-name").textContent = realmName;
+    brand.appendChild(mark);
+    document.documentElement.classList.add("m3-brand-on");
+    return true;
+  };
+  if (apply()) return;
+  const obs = new MutationObserver(() => {
+    if (apply()) obs.disconnect();
+  });
+  obs.observe(document.body, { childList: true, subtree: true });
+  setTimeout(() => obs.disconnect(), 20000);
+}
+
 function init() {
   initLoader();
   initTheme();
   initRail();
+  initBrand();
 }
 
 if (document.readyState === "loading") {

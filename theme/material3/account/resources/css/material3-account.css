@@ -101,6 +101,32 @@ body {
 }
 .pf-v5-c-masthead .pf-v5-c-brand { max-height: 40px; }
 
+/* Brand: realm name + neutral "ID" badge (built by js/material3.js).
+   The stock Keycloak logo is hidden only once our mark is in place. */
+.m3-brand-on .pf-v5-c-masthead__brand img,
+.m3-brand-on .pf-v5-c-masthead__brand .pf-v5-c-brand { display: none; }
+.pf-v5-c-masthead__brand { text-decoration: none; }
+.m3-brand-mark { display: flex; align-items: center; gap: 10px; }
+.m3-brand-name {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: var(--m3-on-surface);
+}
+.m3-brand-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 10px;
+  background: var(--m3-primary);
+  color: var(--m3-on-primary);
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
 /* Avatar button in the header */
 .pf-v5-c-menu-toggle .pf-v5-c-avatar { border-radius: 50%; }
 

@@ -73,6 +73,47 @@ function iconFor(href) {
   return "dot";
 }
 
+/* ── compact navigation labels ──────────────────────────────────────────
+   M3 rails, bars and drawers use short labels, but the console's nav strings
+   double as page headings ("personalInfo" is both), so they can't be
+   shortened at the source. The theme ships its own m3Nav* message keys
+   (overridable per realm like any other string); they're served by the
+   account messages endpoint and matched to nav items by route slug. Items
+   without a key (e.g. Groups) keep the console's original label. */
+
+const NAV_LABEL_KEYS = {
+  "": "m3NavPersonalInfo",
+  "personal-info": "m3NavPersonalInfo",
+  "signing-in": "m3NavSigningIn",
+  "device-activity": "m3NavDeviceActivity",
+  "linked-accounts": "m3NavLinkedAccounts",
+  "applications": "m3NavApplications",
+};
+
+async function fetchNavLabels() {
+  try {
+    const env = JSON.parse(document.getElementById("environment").textContent);
+    const root = new URL(SCRIPT_URL).pathname.split("/resources/")[0];
+    const lang = env.locale || document.documentElement.lang || "en";
+    const res = await fetch(`${root}/resources/${encodeURIComponent(env.realm)}/account/${lang}`);
+    if (!res.ok) return {};
+    const map = {};
+    for (const { key, value } of await res.json()) {
+      if (key.startsWith("m3Nav")) map[key] = value;
+    }
+    return map;
+  } catch (e) {
+    return {};
+  }
+}
+
+function shortLabel(href, fallback, labels) {
+  let slug = (href || "").replace(/[?#].*$/, "").replace(/\/+$/, "").split("/").pop();
+  if (slug === "account") slug = ""; // the root route is Personal info
+  const key = NAV_LABEL_KEYS[slug];
+  return (key && labels[key]) || fallback;
+}
+
 /* ── color-scheme preference ────────────────────────────────────────────── */
 
 function storedTheme() {
@@ -248,8 +289,11 @@ function buildDrawer(items) {
   });
 }
 
-function buildRail(nav) {
-  const items = collectNavLinks(nav);
+function buildRail(nav, labels) {
+  const items = collectNavLinks(nav).map((l) => ({
+    href: l.href,
+    label: shortLabel(l.href, l.label, labels),
+  }));
   if (items.length < 2) return false;
   const rail = document.createElement("nav");
   rail.className = "m3-rail";
@@ -287,10 +331,13 @@ function buildRail(nav) {
   return true;
 }
 
-function initRail() {
+async function initRail() {
+  // The loading overlay covers the console anyway, so waiting for the label
+  // fetch costs nothing visible; on failure the console's labels are kept.
+  const labels = await fetchNavLabels();
   const tryBuild = () => {
     const nav = document.querySelector(".pf-v5-c-nav");
-    return nav ? buildRail(nav) : false;
+    return nav ? buildRail(nav, labels) : false;
   };
   if (tryBuild()) return;
   const obs = new MutationObserver(() => {

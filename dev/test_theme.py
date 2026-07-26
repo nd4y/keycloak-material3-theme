@@ -66,6 +66,16 @@ def test_messages_files():
         val = props.get(key, "")
         check(f"ru: {key} does not say 'пароль'", val != "" and "парол" not in val.lower(), repr(val))
 
+    # Compact m3Nav* labels exist in both account locales
+    nav_keys = {"m3NavPersonalInfo", "m3NavSigningIn", "m3NavDeviceActivity",
+                "m3NavLinkedAccounts", "m3NavApplications"}
+    for lang in ("en", "ru"):
+        txt = (THEME / "account" / "messages" / f"messages_{lang}.properties").read_text(encoding="utf-8")
+        keys = {line.split("=", 1)[0].strip() for line in txt.splitlines()
+                if "=" in line and not line.strip().startswith("#")}
+        check(f"account {lang}: compact m3Nav* labels present", nav_keys <= keys,
+              str(sorted(nav_keys - keys)))
+
 
 def test_login_pages(browser):
     for locale, btn_text, toggle_expected in (("en", "Sign in with a passkey", True), ("ru", "Войти с passkey", True)):
@@ -188,6 +198,10 @@ def test_account_console(browser):
     )
     rail_items = page.locator(".m3-rail-item").count()
     check("account: rail has flattened destinations", rail_items >= 4, f"items={rail_items}")
+    # Compact m3Nav* labels replace the console's long nav strings (which
+    # double as page headings and must stay long there).
+    first_label = page.locator('.m3-rail-item[href$="/account/"] .m3-rail-label, .m3-rail-item[href*="personal-info"] .m3-rail-label').first.inner_text().strip()
+    check("account: rail uses compact nav labels", first_label == "Profile", repr(first_label))
     page.wait_for_selector(".m3-brand-mark", timeout=10000)
     check(
         "account: brand shows realm name + ID badge",
@@ -330,7 +344,69 @@ def test_account_console(browser):
             }"""
         ),
     )
+    check(
+        "account[mobile]: bottom bar labels fit without truncation",
+        mpage.evaluate(
+            """[...document.querySelectorAll('.m3-rail-label')]
+                 .every(l => l.scrollWidth <= l.clientWidth)"""
+        ),
+        mpage.evaluate(
+            """[...document.querySelectorAll('.m3-rail-label')]
+                 .filter(l => l.scrollWidth > l.clientWidth).map(l => l.textContent).join(', ')"""
+        ),
+    )
+    check(
+        "account[mobile]: user-menu kebab pinned to the right edge",
+        mpage.evaluate(
+            """(() => {
+              const b = document.querySelector('[data-testid="options-kebab-toggle"]');
+              if (!b) return false;
+              const r = b.getBoundingClientRect();
+              return r.height > 0 && innerWidth - r.right < 72;
+            })()"""
+        ),
+        mpage.evaluate(
+            "JSON.stringify(document.querySelector('[data-testid=\\'options-kebab-toggle\\']')?.getBoundingClientRect())"
+        ),
+    )
+    check(
+        "account[mobile]: kebab drawn as a round icon button",
+        mpage.evaluate(
+            """(() => {
+              const b = document.querySelector('[data-testid="options-kebab-toggle"]');
+              if (!b) return false;
+              const cs = getComputedStyle(b);
+              const r = b.getBoundingClientRect();
+              return cs.borderRadius.includes('50%') && Math.abs(r.width - r.height) < 2;
+            })()"""
+        ),
+    )
     mob.close()
+
+    # Russian nav labels are the longest strings — verify the compact set fits.
+    mobru = browser.new_context(viewport={"width": 390, "height": 844}, locale="ru-RU", is_mobile=True)
+    rpage = mobru.new_page()
+    rpage.goto(f"{BASE}/realms/demo/account/")
+    rpage.wait_for_selector("#kc-page-title", timeout=20000)
+    rpage.evaluate("document.querySelector('details.m3-pass-details').open = true")
+    rpage.fill("#username", "demo")
+    rpage.fill("#password", "demo1234")
+    rpage.click("#kc-login")
+    rpage.wait_for_selector(".m3-rail", timeout=25000)
+    ru_first = rpage.locator('.m3-rail-item[href$="/account/"] .m3-rail-label, .m3-rail-item[href*="personal-info"] .m3-rail-label').first.inner_text().strip()
+    check("account[mobile,ru]: compact Russian labels", ru_first == "Профиль", repr(ru_first))
+    check(
+        "account[mobile,ru]: bottom bar labels fit without truncation",
+        rpage.evaluate(
+            """[...document.querySelectorAll('.m3-rail-label')]
+                 .every(l => l.scrollWidth <= l.clientWidth)"""
+        ),
+        rpage.evaluate(
+            """[...document.querySelectorAll('.m3-rail-label')]
+                 .filter(l => l.scrollWidth > l.clientWidth).map(l => l.textContent).join(', ')"""
+        ),
+    )
+    mobru.close()
     ctx.close()
 
 

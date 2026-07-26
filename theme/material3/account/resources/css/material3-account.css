@@ -170,6 +170,36 @@ body {
 .pf-v5-c-masthead .pf-v5-c-menu-toggle__toggle-icon,
 .pf-v5-c-masthead .pf-v5-c-menu-toggle__controls { color: var(--m3-on-secondary-container); }
 
+/* The user-menu kebab (replaces the dropdown on narrow screens): PF's
+   competing align-left/align-right auto-margins split the free space and
+   park it mid-header — right-pack the whole toolbar section instead, and
+   draw the kebab as a plain M3 icon button rather than the tonal pill
+   above. */
+.pf-v5-c-masthead .pf-v5-c-toolbar__content-section { justify-content: flex-end; }
+.pf-v5-c-masthead .pf-v5-c-toolbar__item.pf-m-align-left,
+.pf-v5-c-masthead .pf-v5-c-toolbar__item.pf-m-align-right {
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+}
+.pf-v5-c-masthead .pf-v5-c-menu-toggle.pf-m-plain,
+.pf-v5-theme-dark .pf-v5-c-masthead .pf-v5-c-menu-toggle.pf-m-plain {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--m3-on-surface-variant);
+  transition: background .2s cubic-bezier(.2, 0, 0, 1);
+}
+.pf-v5-c-masthead .pf-v5-c-menu-toggle.pf-m-plain:hover,
+.pf-v5-c-masthead .pf-v5-c-menu-toggle.pf-m-plain.pf-m-expanded {
+  background: var(--m3-surface-c3);
+  color: var(--m3-on-surface);
+}
+
 /* ── Navigation: M3 rail (desktop) / navigation bar (phones) ──────────────
    The PF sidebar is replaced by a rail built in js/material3.js; the html
    element gets .m3-rail-on once the rail exists, so if JS ever fails the
@@ -371,7 +401,9 @@ body {
     background: var(--m3-rail);
     border-top: 0;
   }
-  .m3-rail-item { width: auto; flex: 1 1 0; min-width: 0; }
+  /* Labels get the item's full width (no horizontal padding): the compact
+     m3Nav* strings are sized to fit five items on common phone widths. */
+  .m3-rail-item { width: auto; flex: 1 1 0; min-width: 0; padding: 2px 0; }
   .m3-rail-label {
     max-width: 100%;
     overflow: hidden;
@@ -380,6 +412,12 @@ body {
   }
   .m3-rail-on .pf-v5-c-page__main { padding-left: 0; padding-bottom: 96px; }
   .m3-theme-toggle { bottom: calc(96px + env(safe-area-inset-bottom)); }
+}
+
+/* The narrowest phones: 5 × 12px labels don't quite fit — step down 1px
+   rather than ellipsize (e.g. "Приложения" at 360px). */
+@media (max-width: 374px) {
+  .m3-rail-label { font-size: 11px; }
 }
 
 /* ── Content area ─────────────────────────────────────────────────────── */

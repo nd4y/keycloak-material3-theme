@@ -272,6 +272,12 @@ providers/
 `theme/material3/login/messages/messages_{en,ru}.properties`; новые локали добавляются
 файлами `messages_<lang>.properties` и перечислением локали в `theme.properties`.
 
+Компактные подписи навигации в кабинете (рельса, нижняя панель, drawer) — собственные
+ключи темы `m3NavPersonalInfo`, `m3NavSigningIn`, `m3NavDeviceActivity`,
+`m3NavLinkedAccounts`, `m3NavApplications`; их, как и любую другую строку, можно
+переопределить для конкретного рилма через **Realm settings → Localization → Realm
+overrides** (заголовки страниц при этом остаются полными).
+
 ## Разработка
 
 Готовый dev-стенд с демо-рилмом (тестовые провайдеры, включённые passkeys, пользователь

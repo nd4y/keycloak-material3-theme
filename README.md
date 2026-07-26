@@ -265,6 +265,12 @@ Custom UI strings (button labels, hints) live in
 `theme/material3/login/messages/messages_{en,ru}.properties`; add more locales by dropping in
 additional `messages_<lang>.properties` files and listing the locale in `theme.properties`.
 
+The compact navigation labels in the Account Console (rail, bottom bar, drawer) are the
+theme's own keys — `m3NavPersonalInfo`, `m3NavSigningIn`, `m3NavDeviceActivity`,
+`m3NavLinkedAccounts`, `m3NavApplications` — and, like any other string, can be
+overridden per realm via **Realm settings → Localization → Realm overrides** (page
+headings keep their full-length titles either way).
+
 ## Development
 
 A ready-made dev stack with a demo realm (test IdPs, passkeys enabled, `demo`/`demo1234` user):

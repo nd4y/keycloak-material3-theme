@@ -1,0 +1,67 @@
+{
+  "realm": "demo",
+  "enabled": true,
+  "displayName": "Acme",
+  "displayNameHtml": "Acme",
+  "loginTheme": "material3",
+  "accountTheme": "material3",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en", "ru"],
+  "defaultLocale": "en",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": false,
+  "resetPasswordAllowed": true,
+  "rememberMe": true,
+  "loginWithEmailAllowed": true,
+  "webAuthnPolicyPasswordlessRpEntityName": "keycloak",
+  "webAuthnPolicyPasswordlessRpId": "",
+  "webAuthnPolicyPasswordlessRequireResidentKey": "Yes",
+  "webAuthnPolicyPasswordlessUserVerificationRequirement": "required",
+  "webAuthnPolicyPasswordlessPasskeysEnabled": true,
+  "identityProviders": [
+    {
+      "alias": "google",
+      "providerId": "google",
+      "enabled": true,
+      "config": { "clientId": "demo", "clientSecret": "demo" }
+    },
+    {
+      "alias": "github",
+      "providerId": "github",
+      "enabled": true,
+      "config": { "clientId": "demo", "clientSecret": "demo" }
+    },
+    {
+      "alias": "gitlab",
+      "providerId": "gitlab",
+      "enabled": true,
+      "config": { "clientId": "demo", "clientSecret": "demo" }
+    },
+    {
+      "alias": "telegram",
+      "displayName": "Telegram",
+      "providerId": "oidc",
+      "enabled": true,
+      "config": {
+        "clientId": "demo",
+        "clientSecret": "demo",
+        "authorizationUrl": "https://example.invalid/auth",
+        "tokenUrl": "https://example.invalid/token"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "demo",
+      "enabled": true,
+      "email": "demo@example.com",
+      "emailVerified": true,
+      "firstName": "Demo",
+      "lastName": "User",
+      "credentials": [
+        { "type": "password", "value": "demo1234", "temporary": false }
+      ],
+      "realmRoles": ["default-roles-demo"]
+    }
+  ]
+}

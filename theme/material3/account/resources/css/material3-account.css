@@ -1,0 +1,212 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Material 3 Expressive theme for Keycloak — Account Console (keycloak.v3)
+   The console is a PatternFly v5 React app; we restyle it through PF CSS
+   variables plus a few component-level overrides. Dark mode: the console
+   itself toggles .pf-v5-theme-dark on <html> following the system theme.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --m3-primary: #6750A4;
+  --m3-primary-hover: #56418f;
+  --m3-on-primary: #FFFFFF;
+  --m3-primary-container: #EADDFF;
+  --m3-on-primary-container: #21005D;
+  --m3-secondary-container: #E8DEF8;
+  --m3-on-secondary-container: #1D192B;
+  --m3-surface: #FEF7FF;
+  --m3-surface-c1: #F7F2FA;
+  --m3-surface-c2: #F3EDF7;
+  --m3-surface-c3: #ECE6F0;
+  --m3-on-surface: #1D1B20;
+  --m3-on-surface-variant: #49454F;
+  --m3-outline-variant: #CAC4D0;
+}
+
+.pf-v5-theme-dark {
+  --m3-primary: #D0BCFF;
+  --m3-primary-hover: #dcccff;
+  --m3-on-primary: #381E72;
+  --m3-primary-container: #4F378B;
+  --m3-on-primary-container: #EADDFF;
+  --m3-secondary-container: #4A4458;
+  --m3-on-secondary-container: #E8DEF8;
+  --m3-surface: #141218;
+  --m3-surface-c1: #1D1B20;
+  --m3-surface-c2: #211F26;
+  --m3-surface-c3: #2B2930;
+  --m3-on-surface: #E6E0E9;
+  --m3-on-surface-variant: #CAC4D0;
+  --m3-outline-variant: #49454F;
+}
+
+/* ── Global PF token overrides ────────────────────────────────────────── */
+
+:root, .pf-v5-theme-dark {
+  --pf-v5-global--FontFamily--text: "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --pf-v5-global--FontFamily--heading: "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --pf-v5-global--primary-color--100: var(--m3-primary);
+  --pf-v5-global--primary-color--200: var(--m3-primary-hover);
+  --pf-v5-global--link--Color: var(--m3-primary);
+  --pf-v5-global--link--Color--hover: var(--m3-primary-hover);
+  --pf-v5-global--active-color--100: var(--m3-primary);
+
+  --pf-v5-global--BorderRadius--sm: 12px;
+  --pf-v5-global--BorderRadius--lg: 24px;
+
+  --pf-v5-global--BackgroundColor--100: var(--m3-surface);
+  --pf-v5-global--BackgroundColor--200: var(--m3-surface-c1);
+  --pf-v5-global--Color--100: var(--m3-on-surface);
+  --pf-v5-global--Color--200: var(--m3-on-surface-variant);
+  --pf-v5-global--BorderColor--100: var(--m3-outline-variant);
+  --pf-v5-global--BorderColor--200: var(--m3-outline-variant);
+  --pf-v5-global--BorderColor--300: var(--m3-outline-variant);
+}
+
+body {
+  background: var(--m3-surface);
+}
+
+/* ── Masthead ─────────────────────────────────────────────────────────── */
+
+.pf-v5-c-masthead,
+.pf-v5-theme-dark .pf-v5-c-masthead {
+  --pf-v5-c-masthead--BackgroundColor: var(--m3-surface-c1);
+  background: var(--m3-surface-c1);
+  border-bottom: 1px solid var(--m3-outline-variant);
+}
+.pf-v5-c-masthead__content, .pf-v5-c-masthead__main { background: transparent; }
+.pf-v5-c-masthead .pf-v5-c-toolbar,
+.pf-v5-theme-dark .pf-v5-c-masthead .pf-v5-c-toolbar {
+  --pf-v5-c-toolbar--BackgroundColor: transparent;
+  background: transparent;
+}
+.pf-v5-c-masthead .pf-v5-c-brand { max-height: 40px; }
+
+/* Avatar button in the header */
+.pf-v5-c-menu-toggle .pf-v5-c-avatar { border-radius: 50%; }
+
+/* User menu toggle in the header: PF paints it blue/grey — restyle as a tonal pill */
+.pf-v5-c-page__masthead .pf-v5-c-menu-toggle,
+.pf-v5-c-masthead .pf-v5-c-menu-toggle,
+.pf-v5-theme-dark .pf-v5-c-masthead .pf-v5-c-menu-toggle {
+  background: var(--m3-secondary-container);
+  color: var(--m3-on-secondary-container);
+  border-radius: 999px;
+  box-shadow: none;
+  border: 0;
+}
+.pf-v5-c-masthead .pf-v5-c-menu-toggle:hover,
+.pf-v5-c-masthead .pf-v5-c-menu-toggle.pf-m-expanded {
+  background: var(--m3-secondary-container);
+  color: var(--m3-on-secondary-container);
+}
+.pf-v5-c-masthead .pf-v5-c-menu-toggle::before,
+.pf-v5-c-masthead .pf-v5-c-menu-toggle::after { border: 0; }
+.pf-v5-c-masthead .pf-v5-c-menu-toggle__toggle-icon,
+.pf-v5-c-masthead .pf-v5-c-menu-toggle__controls { color: var(--m3-on-secondary-container); }
+
+/* ── Sidebar navigation: M3 pill items ────────────────────────────────── */
+
+.pf-v5-c-page__sidebar {
+  --pf-v5-c-page__sidebar--BackgroundColor: var(--m3-surface-c1);
+  border-right: 0;
+}
+.pf-v5-c-page__sidebar-body { padding-inline: 10px; }
+
+.pf-v5-c-nav__link {
+  border-radius: 999px;
+  margin-block: 2px;
+  font-size: 14.5px;
+  color: var(--m3-on-surface-variant);
+  transition: background .2s, border-radius .3s cubic-bezier(.3, 1.4, .4, 1);
+}
+.pf-v5-c-nav__link:hover {
+  background: var(--m3-surface-c3);
+  border-radius: 16px;
+  color: var(--m3-on-surface);
+}
+.pf-v5-c-nav__item.pf-m-current > .pf-v5-c-nav__link,
+.pf-v5-c-nav__link.pf-m-current {
+  background: var(--m3-secondary-container);
+  color: var(--m3-on-secondary-container);
+  font-weight: 600;
+}
+.pf-v5-c-nav__item.pf-m-current > .pf-v5-c-nav__link::before,
+.pf-v5-c-nav__link.pf-m-current::before { border: 0; }
+.pf-v5-c-nav__link::after, .pf-v5-c-nav__link::before { border: 0 !important; }
+
+/* ── Content area ─────────────────────────────────────────────────────── */
+
+.pf-v5-c-page__main-section {
+  --pf-v5-c-page__main-section--BackgroundColor: var(--m3-surface);
+}
+
+.pf-v5-c-title {
+  letter-spacing: -.02em;
+  font-weight: 700;
+}
+
+/* Cards → M3 surface containers */
+.pf-v5-c-card {
+  --pf-v5-c-card--BackgroundColor: var(--m3-surface-c2);
+  border-radius: 24px;
+  box-shadow: none;
+  border: 0;
+}
+
+/* Data lists (passkeys, sessions, linked accounts) */
+.pf-v5-c-data-list__item {
+  background: transparent;
+  border-color: var(--m3-outline-variant);
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+
+.pf-v5-c-button {
+  border-radius: 999px;
+  font-weight: 600;
+  transition: border-radius .3s cubic-bezier(.3, 1.4, .4, 1), background .2s;
+}
+.pf-v5-c-button:hover { border-radius: 14px; }
+.pf-v5-c-button.pf-m-plain { border-radius: 50%; }
+.pf-v5-c-button.pf-m-plain:hover { border-radius: 50%; background: var(--m3-surface-c3); }
+
+.pf-v5-c-button.pf-m-primary {
+  background: var(--m3-primary);
+  color: var(--m3-on-primary);
+}
+.pf-v5-c-button.pf-m-primary:hover {
+  background: var(--m3-primary-hover);
+  color: var(--m3-on-primary);
+}
+.pf-v5-c-button.pf-m-secondary {
+  background: var(--m3-secondary-container);
+  color: var(--m3-on-secondary-container);
+  border: 0;
+}
+.pf-v5-c-button.pf-m-secondary:hover {
+  background: var(--m3-secondary-container);
+  color: var(--m3-on-secondary-container);
+}
+.pf-v5-c-button.pf-m-danger { border-radius: 999px; }
+.pf-v5-c-button.pf-m-danger:hover { border-radius: 14px; }
+
+/* ── Forms ────────────────────────────────────────────────────────────── */
+
+.pf-v5-c-form-control {
+  border-radius: 12px 12px 4px 4px;
+  --pf-v5-c-form-control--BackgroundColor: var(--m3-surface-c3);
+}
+
+/* Switches pick up the primary color via --pf-v5-global--primary-color--100 */
+
+/* ── Alerts / modals / popovers ───────────────────────────────────────── */
+
+.pf-v5-c-alert { border-radius: 16px; }
+.pf-v5-c-modal-box { border-radius: 28px; }
+.pf-v5-c-menu { border-radius: 16px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

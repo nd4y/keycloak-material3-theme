@@ -1,0 +1,18 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3
+    container_name: kc-material3-dev
+    command: >
+      start-dev --import-realm
+      --spi-theme-static-max-age=-1
+      --spi-theme-cache-themes=false
+      --spi-theme-cache-templates=false
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_FEATURES: passkeys
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../theme/material3:/opt/keycloak/themes/material3:ro
+      - ./demo-realm.json:/opt/keycloak/data/import/demo-realm.json:ro

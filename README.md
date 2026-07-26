@@ -1,49 +1,75 @@
 # Keycloak Material 3 Theme
 
-A [Material 3 Expressive](https://m3.material.io/) theme for Keycloak — login pages **and**
-Account Console. Passkey-first, responsive, with automatic light/dark mode.
+![Material 3 Expressive for Keycloak](docs/hero.png)
 
-No server rebuild, no JAR packaging, no Keycloakify toolchain: it is a plain theme directory
-that you mount into the official Keycloak image.
+A [Material 3 Expressive](https://m3.material.io/) theme for Keycloak covering the login
+pages **and** the Account Console. Passkey-first, fully adaptive, automatically light or
+dark — and deployable without rebuilding Keycloak: it is a plain theme directory (or a tiny
+carrier image) mounted into the official Keycloak image.
 
-![Login page](docs/login-light.png)
+## Why this theme
+
+- **Faithful to Material 3 Expressive — down to the pixel.** The color palette, the
+  Google Sans type system, the navigation-rail geometry, component shapes and state layers
+  are sampled directly from [m3.material.io](https://m3.material.io/), Google's own
+  reference implementation, in both light and dark schemes. What you deploy looks like a
+  first-party Google product, not an approximation of one.
+- **Every interaction is animated.** Card entrances and exits, the expanding password
+  section, page transitions in the console, the drawer, hover state layers, even the brand
+  panel sliding away as the window narrows — all follow Material's motion system (standard
+  easing `cubic-bezier(0.2, 0, 0, 1)`, purposeful durations). Users with
+  `prefers-reduced-motion` get an instant, animation-free experience. These guarantees are
+  not aspirational: a dedicated motion test suite verifies them in CI on every commit.
+- **Passkey-first authentication UX.** The passkey button is the single filled, most
+  prominent action; identity providers follow as tonal icon buttons; the username/password
+  form stays collapsed until requested (and expands automatically when it is the only
+  option or after a failed attempt). Conditional WebAuthn UI is supported.
+- **Adaptive on every screen.** The Account Console renders a navigation rail on wide
+  screens, collapses into a top bar with a modal drawer on medium ones, and becomes a
+  bottom navigation bar on phones — the same responsive behavior as m3.material.io. The
+  login page pairs the card with a decorative brand panel on desktop and collapses it
+  smoothly on smaller windows.
+- **Zero-rebuild deployment.** No `kc.sh build`, no JAR packaging, no Keycloakify
+  toolchain, no custom Keycloak image. Mount a directory — or let the published
+  multi-arch carrier image populate a shared volume — and switch the realm setting.
+- **Nothing installation-specific is hardcoded.** Branding is derived from the realm at
+  runtime (realm display name in the masthead and on the login brand panel); strings are
+  overridable per realm through Keycloak's standard localization mechanism.
+- **Tested like a product, not a stylesheet.** An end-to-end Playwright suite (70+
+  assertions: rendering, navigation, theming, i18n, motion, accessibility regressions)
+  runs in CI against Keycloak 26.0 and 26.3 before any image is published.
+- **Considered details throughout.** Manual light/dark toggle that remembers the choice
+  across login and console; a stable scrollbar gutter so pages never shift; an M3 loading
+  indicator that reveals the console only when fully assembled; upstream Russian
+  mistranslations of "passkey" corrected; extensible identity-provider iconography.
+
+## Feature overview
+
+- **Both user-facing UIs** — login pages and the `keycloak.v3` Account Console share one
+  design system (the Admin Console is deliberately left untouched). All login flows are
+  styled: registration, password reset, OTP, WebAuthn, `select-authenticator`, logout
+  confirmation and error pages.
+- **Typography** — Google Sans / Google Sans Text, loaded from the Google Fonts CDN via a
+  single `@import` at the top of each CSS file. If third-party CDNs are not acceptable in
+  your environment (privacy / GDPR), delete that line — the theme falls back to
+  Roboto/system fonts.
+- **Identity-provider icons** — Google, GitHub, GitLab and Telegram ship out of the box,
+  matched by provider alias; adding a provider is one SVG file, no template changes
+  ([details below](#identity-provider-icons)).
+- **Localization** — English and Russian strings for the theme's own UI; every other locale
+  gracefully falls back to Keycloak's stock translations.
+- **IdP-first onboarding support** — a built-in help dialog explains the
+  "sign in with a provider first, add a passkey later" flow to end users, and its text is
+  overridable per realm.
+
+| Account Console | |
+|---|---|
+| ![Account light](docs/account-light.png) | ![Account dark](docs/account-dark.png) |
 
 <p align="center">
   <img src="docs/login-dark.png" alt="Login page, dark" width="68%">
   <img src="docs/login-mobile.png" alt="Login page, mobile" width="24%">
 </p>
-
-## Features
-
-- **Passkey-first sign-in** — the passkey button is the single filled (most prominent) button
-  on the page; identity providers come second as tonal icon buttons; the username/password
-  form is collapsed behind a text button and expands only on demand (or automatically when
-  it is the only option, or after a failed attempt).
-- **Looks like m3.material.io** — the palette, the Google Sans typography, the navigation
-  rail geometry and the button shapes are taken from Google's own Material 3 site, in both
-  light and dark schemes (plus a manual theme toggle that remembers the choice).
-- **Responsive like m3.material.io** — the Account Console shows a navigation rail on wide
-  screens (≥ 1100px), collapses it into a hamburger + modal drawer on medium screens, and
-  becomes a bottom navigation bar on phones. Login pages: a single centered card on mobile,
-  card plus a decorative brand panel on desktop; the brand panel picks up your realm
-  display name.
-- **Fonts** — Google Sans / Google Sans Text are loaded from the Google Fonts CDN via one
-  `@import` line at the top of each CSS file. If you must not call third-party CDNs
-  (privacy / GDPR), delete that line — everything falls back to Roboto/system fonts.
-- **Identity-provider icons** — Google, GitHub, GitLab and Telegram icons ship out of the box,
-  matched by provider alias. Adding a provider is one SVG file, no template changes
-  ([details below](#identity-provider-icons)).
-- **Account Console included** — the same design tokens applied to the `keycloak.v3` Account
-  Console (PatternFly variable overrides). The Admin Console is intentionally left untouched.
-- **English + Russian** UI strings for the custom elements; all standard strings come from
-  Keycloak's own translations, so other locales degrade gracefully.
-- **All login flows styled** — registration, password reset, OTP, WebAuthn, `select-authenticator`,
-  logout confirmation and error pages inherit the same look through the base theme's
-  class hooks.
-
-| Account Console | |
-|---|---|
-| ![Account light](docs/account-light.png) | ![Account dark](docs/account-dark.png) |
 
 ## Compatibility
 
@@ -244,9 +270,11 @@ docker compose -f dev/docker-compose.dev.yml up
 ```
 
 It runs `start-dev` with theme caching disabled, so template and CSS edits apply on refresh.
-README screenshots are generated with [`dev/screenshots.py`](dev/screenshots.py) (Playwright).
-The e2e suite ([`dev/test_theme.py`](dev/test_theme.py)) runs in CI against Keycloak 26.0 and
-26.3 before the image is built.
+README screenshots are generated with [`dev/screenshots.py`](dev/screenshots.py), and the
+hero image with [`dev/promo.py`](dev/promo.py) (both Playwright).
+The e2e suite ([`dev/test_theme.py`](dev/test_theme.py)) — rendering, navigation, theming,
+i18n and the motion checks — runs in CI against Keycloak 26.0 and 26.3 before the image is
+built.
 
 When releasing a change to CSS or JS, bump the `?v=` query in both `theme.properties` files —
 Keycloak's `/resources/<hash>/` URLs change with the server version, not with theme content,

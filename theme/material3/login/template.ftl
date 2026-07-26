@@ -59,6 +59,15 @@
                 try { localStorage.setItem("m3-theme", next); } catch (e) { /* ignore */ }
             });
         });
+        document.addEventListener("DOMContentLoaded", () => {
+            const dlg = document.getElementById("m3-help");
+            const open = document.getElementById("m3-help-btn");
+            const close = document.getElementById("m3-help-close");
+            if (!dlg || !open) return;
+            open.addEventListener("click", () => dlg.showModal());
+            close.addEventListener("click", () => dlg.close());
+            dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+        });
     </script>
     <#if scripts??>
         <#list scripts as script>
@@ -123,6 +132,7 @@
             <div class="m3-card-top">
                 <div class="m3-logo" aria-hidden="true"><#if brandName?has_content>${brandName[0]?upper_case}<#else>K</#if></div>
                 <div class="m3-card-top-actions">
+                <button type="button" id="m3-help-btn" class="m3-icon-btn" aria-label="${msg("m3Help")}" title="${msg("m3Help")}" aria-haspopup="dialog"></button>
                 <button type="button" id="m3-theme-toggle" class="m3-theme-toggle" aria-label="${msg("m3ThemeToggle")}" title="${msg("m3ThemeToggle")}"></button>
                 <#if realm.internationalizationEnabled && locale.supported?size gt 1>
                     <div class="menu-button-links m3-locale" id="kc-locale">
@@ -198,6 +208,15 @@
                 </div>
             </div>
         </div>
+
+        <dialog id="m3-help" class="m3-help" aria-labelledby="m3-help-title">
+            <h2 id="m3-help-title">${msg("m3HelpTitle")}</h2>
+            <p>${msg("m3HelpBody1")}</p>
+            <p>${msg("m3HelpBody2")}</p>
+            <div class="m3-help-actions">
+                <button type="button" id="m3-help-close" class="m3-btn m3-btn-tonal">${msg("m3HelpClose")}</button>
+            </div>
+        </dialog>
     </main>
 </div>
 </body>

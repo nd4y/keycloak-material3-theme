@@ -116,21 +116,34 @@ services:
 
 Bare metal: copy `theme/material3` to `/opt/keycloak/themes/material3`.
 
-Then, in the Admin Console for your realm:
+## Configuring Keycloak
 
-1. **Realm settings → Themes**
-   - *Login theme* → `material3`
-   - *Account theme* → `material3`
-   - leave *Admin theme* as is.
-2. **Realm settings → Localization** (for the language switcher)
-   - *Internationalization* → Enabled
-   - *Supported locales* → English, Русский (plus any others)
+Everything below is realm/server configuration — the theme itself needs no build step.
 
-Themes are cached in production mode; restart Keycloak after updating theme files.
+### 1. Switch the realm to the theme
 
-## Enabling the passkey button
+**Realm settings → Themes**:
 
-The passkey button uses Keycloak's built-in passkeys support (preview in 26.x):
+- *Login theme* → `material3`
+- *Account theme* → `material3`
+- leave *Admin theme* as is (the Admin Console is intentionally not themed).
+
+Themes are cached in production mode; restart Keycloak after updating theme files
+(not needed when only switching the realm setting).
+
+### 2. Localization
+
+**Realm settings → Localization**:
+
+- *Internationalization* → Enabled
+- *Supported locales* → English, Русский (plus any others — the theme's own strings exist
+  in en/ru; other locales fall back to Keycloak's stock translations)
+
+This also enables the language switcher on the login card.
+
+### 3. Passkeys (the hero button)
+
+The passkey button uses Keycloak's built-in passkeys support (preview in 26.x, needs ≥ 26.2):
 
 1. Start Keycloak with the feature enabled:
 
@@ -139,17 +152,43 @@ The passkey button uses Keycloak's built-in passkeys support (preview in 26.x):
      KC_FEATURES: passkeys
    ```
 
-2. In **Authentication → Policies → WebAuthn Passwordless Policy**:
+2. **Authentication → Policies → WebAuthn Passwordless Policy**:
    - *Enable passkeys* → On
    - recommended: *Requires discoverable credential* → Yes,
      *User verification requirement* → required
 
 3. Let users register a passkey: **Authentication → Required actions** → enable
-   *Webauthn Register Passwordless*, or users can add one themselves in the Account Console
+   *Webauthn Register Passwordless*, or users add one themselves in the Account Console
    under *Account security → Signing in*.
 
 With the feature active, the login page renders the filled *Sign in with a passkey* button and
-also offers passkeys through the browser's username autofill (conditional UI).
+also offers passkeys through the browser's username autofill (conditional UI). On older
+servers (or with the feature off) the theme degrades gracefully — the button simply is not
+rendered. Both the default browser flow and custom flows that keep the standard
+*Username Password Form* work.
+
+### 4. Identity providers
+
+Add providers under **Identity providers** as usual. The login page shows one round button
+per provider, with icons matched by the provider **alias** (`google`, `github`, `gitlab`,
+`telegram` ship out of the box; anything else falls back to a neutral key icon — see
+[Identity-provider icons](#identity-provider-icons)).
+
+### 5. Registration model
+
+The theme supports both onboarding styles:
+
+- **Open self-registration**: enable **Realm settings → Login → User registration** — the
+  login card shows a "New user? Register" link and a Material-styled registration form.
+- **IdP-first onboarding** (no registration form): leave registration off and let accounts
+  be created on the first identity-provider sign-in. The login card's **help dialog**
+  (the "?" button) explains exactly this to end users: sign in with any listed provider
+  first, then optionally set up a passkey or a password (with optional OTP) in the account
+  settings.
+
+To reword the help dialog (or any other string) for your realm without forking the theme,
+use **Realm settings → Localization → Realm overrides** and override the message keys
+`m3HelpTitle`, `m3HelpBody1`, `m3HelpBody2`.
 
 ## Identity-provider icons
 

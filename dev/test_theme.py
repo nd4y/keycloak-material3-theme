@@ -90,6 +90,31 @@ def test_login_pages(browser):
         else:
             check(f"login[{locale}]: passkey button absent", page.locator("#authenticateWebAuthnButton").count() == 0)
 
+        # Help dialog opens, shows onboarding text, closes.
+        check(f"login[{locale}]: help button present", page.locator("#m3-help-btn").count() == 1)
+        page.click("#m3-help-btn")
+        page.wait_for_timeout(200)
+        check(
+            f"login[{locale}]: help dialog opens",
+            page.evaluate("document.getElementById('m3-help')?.open === true"),
+        )
+        help_text = page.locator("#m3-help").inner_text()
+        needle = "passkey" if locale == "en" else "passkey"
+        check(f"login[{locale}]: help mentions passkey", needle in help_text.lower(), help_text[:120])
+        page.click("#m3-help-close")
+        page.wait_for_timeout(200)
+        check(
+            f"login[{locale}]: help dialog closes",
+            page.evaluate("document.getElementById('m3-help')?.open === false"),
+        )
+        # "Try another way" is hidden on the main login page.
+        check(
+            f"login[{locale}]: try-another-way hidden",
+            page.evaluate(
+                "(el => !el || getComputedStyle(el).display === 'none')(document.querySelector('.m3-try-another'))"
+            ),
+        )
+
         # Theme toggle flips tokens and persists.
         bg_before = page.evaluate("getComputedStyle(document.body).backgroundColor")
         page.click("#m3-theme-toggle")

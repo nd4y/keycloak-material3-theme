@@ -555,21 +555,61 @@ h1, h2, h3 {
   border-radius: 12px;
   --pf-v5-c-form-control--BackgroundColor: var(--m3-surface-c3);
 }
-/* PF paints a contrasting underline with ::after (a white stripe in dark);
-   replace it with M3-style focus / error rings. */
+/* PF paints a contrasting underline with ::after (a white stripe in dark)
+   and a 1px frame with ::before — both with ZERO border-radius, so their
+   square corners peek out from under the rounded field (and the frame
+   lights up on focus). Kill both; the M3 focus/error rings below replace
+   them. */
+.pf-v5-c-form-control::before,
+.pf-v5-theme-dark .pf-v5-c-form-control::before,
 .pf-v5-c-form-control::after,
 .pf-v5-theme-dark .pf-v5-c-form-control::after {
   border: 0 !important;
+  border-radius: inherit;
 }
 .pf-v5-c-form-control:focus-within,
 .pf-v5-theme-dark .pf-v5-c-form-control:focus-within {
   outline: 2px solid var(--m3-primary);
   outline-offset: -2px;
 }
+/* The wrapper's ring is the focus indicator — the browser's own square
+   outline on the inner control would double it. */
+.pf-v5-c-form-control > input:focus,
+.pf-v5-c-form-control > textarea:focus,
+.pf-v5-c-form-control > select:focus {
+  outline: 0;
+}
 .pf-v5-c-form-control.pf-m-error,
 .pf-v5-theme-dark .pf-v5-c-form-control.pf-m-error {
   outline: 2px solid var(--m3-error);
   outline-offset: -2px;
+}
+
+/* Dropdown fields in forms (e.g. "Select a locale" — a PF menu toggle):
+   PF gives them a white outlined look; restyle as the same M3 filled field
+   as the text inputs next to them. */
+.pf-v5-c-form__group .pf-v5-c-menu-toggle.pf-m-full-width,
+.pf-v5-theme-dark .pf-v5-c-form__group .pf-v5-c-menu-toggle.pf-m-full-width {
+  background: var(--m3-surface-c3);
+  border: 0;
+  border-radius: 12px;
+  min-height: 36px;
+  color: var(--m3-on-surface);
+  box-shadow: none;
+}
+.pf-v5-c-form__group .pf-v5-c-menu-toggle.pf-m-full-width::before,
+.pf-v5-c-form__group .pf-v5-c-menu-toggle.pf-m-full-width::after {
+  border: 0 !important;
+  border-radius: inherit;
+}
+.pf-v5-c-form__group .pf-v5-c-menu-toggle.pf-m-full-width:focus-visible,
+.pf-v5-c-form__group .pf-v5-c-menu-toggle.pf-m-full-width.pf-m-expanded,
+.pf-v5-c-form__group .pf-v5-c-menu-toggle.pf-m-full-width[aria-expanded="true"] {
+  outline: 2px solid var(--m3-primary);
+  outline-offset: -2px;
+}
+.pf-v5-c-form__group .pf-v5-c-menu-toggle.pf-m-full-width .pf-v5-c-menu-toggle__toggle-icon {
+  color: var(--m3-on-surface-variant);
 }
 
 /* Switches pick up the primary color via --pf-v5-global--primary-color--100 */

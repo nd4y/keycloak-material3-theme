@@ -240,6 +240,47 @@ def test_account_console(browser):
             "(el => !el || getComputedStyle(el).display === 'none')(document.querySelector('.pf-v5-c-page__sidebar'))"
         ),
     )
+    # Form fields: PF's rectangular pseudo-element frames must be gone, the
+    # focus indicator is a single rounded ring, and the locale dropdown looks
+    # like the text fields next to it.
+    check(
+        "account: no rectangular pseudo frames on inputs",
+        page.evaluate(
+            """(() => {
+              const w = document.querySelector('input[name="email"], #email').parentElement;
+              const b = getComputedStyle(w, '::before'), a = getComputedStyle(w, '::after');
+              return [b.borderTopWidth, b.borderRightWidth, b.borderBottomWidth, b.borderLeftWidth,
+                      a.borderTopWidth, a.borderRightWidth, a.borderBottomWidth, a.borderLeftWidth]
+                .every(x => x === '0px');
+            })()"""
+        ),
+    )
+    page.click('input[name="email"], #email')
+    page.wait_for_timeout(200)
+    check(
+        "account: focus = one rounded ring, no inner browser outline",
+        page.evaluate(
+            """(() => {
+              const w = document.querySelector('input[name="email"], #email').parentElement;
+              const cs = getComputedStyle(w);
+              return cs.outlineStyle === 'solid' && parseFloat(cs.borderRadius) >= 8
+                  && getComputedStyle(document.activeElement).outlineStyle === 'none';
+            })()"""
+        ),
+    )
+    check(
+        "account: locale dropdown styled like the text fields",
+        page.evaluate(
+            """(() => {
+              const t = document.querySelector('.pf-v5-c-form__group .pf-v5-c-menu-toggle.pf-m-full-width');
+              if (!t) return false;
+              const w = document.querySelector('input[name="email"], #email').parentElement;
+              const a = getComputedStyle(t), b = getComputedStyle(w);
+              return a.backgroundColor === b.backgroundColor && a.borderRadius === b.borderRadius
+                  && a.borderTopWidth === '0px';
+            })()"""
+        ),
+    )
     # Rail navigation works.
     page.click('.m3-rail-item[href*="signing-in"]')
     page.wait_for_timeout(1500)

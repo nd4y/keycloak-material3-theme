@@ -240,6 +240,55 @@ def test_account_console(browser):
             "(el => !el || getComputedStyle(el).display === 'none')(document.querySelector('.pf-v5-c-page__sidebar'))"
         ),
     )
+    # User button: M3 avatar circle with initials instead of PF's pill.
+    page.wait_for_selector(".m3-user-avatar", timeout=10000)
+    check(
+        "account: user button shows initials avatar",
+        page.evaluate("document.querySelector('[data-testid=\\'options-toggle\\'] .m3-user-avatar')?.textContent") == "DU",
+        page.evaluate("document.querySelector('.m3-user-avatar')?.textContent"),
+    )
+    check(
+        "account: PF pill text and caret hidden",
+        page.evaluate(
+            """(() => {
+              const t = document.querySelector('[data-testid="options-toggle"] .pf-v5-c-menu-toggle__text');
+              const c = document.querySelector('[data-testid="options-toggle"] .pf-v5-c-menu-toggle__controls');
+              return t && getComputedStyle(t).display === 'none'
+                  && c && getComputedStyle(c).display === 'none';
+            })()"""
+        ),
+    )
+    check(
+        "account: stock gray avatar hidden",
+        page.evaluate(
+            """(el => !el || getComputedStyle(el.closest('.pf-v5-c-toolbar__item') || el).display === 'none')
+               (document.querySelector('.pf-v5-c-masthead svg.pf-v5-c-avatar'))"""
+        ),
+    )
+    page.click('[data-testid="options-toggle"]')
+    page.wait_for_timeout(400)
+    check(
+        "account: avatar button opens the user menu",
+        page.locator(".pf-v5-c-menu").count() > 0
+        and page.locator(".pf-v5-c-menu").first.is_visible(),
+    )
+    check(
+        "account: expanded toggle stays an avatar (no pill text)",
+        page.evaluate(
+            """(() => {
+              const t = document.querySelector('[data-testid="options-toggle"] .pf-v5-c-menu-toggle__text');
+              return document.querySelector('[data-testid="options-toggle"] .m3-user-avatar')
+                  && (!t || getComputedStyle(t).display === 'none');
+            })()"""
+        ),
+    )
+    page.keyboard.press("Escape")
+    page.wait_for_timeout(300)
+    check(
+        "account: avatar survives menu collapse (PF re-render)",
+        page.evaluate("!!document.querySelector('[data-testid=\\'options-toggle\\'] .m3-user-avatar')"),
+    )
+
     # Form fields: PF's rectangular pseudo-element frames must be gone, the
     # focus indicator is a single rounded ring, and the locale dropdown looks
     # like the text fields next to it.

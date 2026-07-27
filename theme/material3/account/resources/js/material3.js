@@ -452,6 +452,38 @@ function initBrand() {
   setTimeout(() => obs.disconnect(), 20000);
 }
 
+/* ── user button ─────────────────────────────────────────────────────────
+   PF renders the user menu as a "name + caret" pill next to a stock gray
+   avatar. Collapse it to a Google-style round avatar with the user's
+   initials (the pill text feeds them, so nothing installation-specific is
+   hardcoded); the stock avatar is hidden in CSS. ── */
+
+function initUserButton() {
+  const apply = () => {
+    const btn = document.querySelector('[data-testid="options-toggle"]');
+    if (!btn) return false;
+    if (btn.querySelector(".m3-user-avatar")) return true;
+    const text = btn.querySelector(".pf-v5-c-menu-toggle__text");
+    const name = (text ? text.textContent : "").trim();
+    const initials = name
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w.charAt(0))
+      .join("")
+      .toUpperCase();
+    const av = document.createElement("span");
+    av.className = "m3-user-avatar";
+    av.textContent = initials || "•";
+    btn.insertBefore(av, btn.firstChild);
+    if (name) btn.setAttribute("aria-label", name);
+    return true;
+  };
+  apply();
+  // Keep observing: PF re-renders the toggle on expand/collapse and may
+  // drop the injected span — re-apply is idempotent and cheap.
+  new MutationObserver(apply).observe(document.body, { childList: true, subtree: true });
+}
+
 function init() {
   initFavicon(); // again: stock <link rel="icon"> may appear after our script tag
   initLoader();
@@ -459,6 +491,7 @@ function init() {
   initTheme(msgsPromise);
   initRail(msgsPromise);
   initBrand();
+  initUserButton();
 }
 
 if (document.readyState === "loading") {

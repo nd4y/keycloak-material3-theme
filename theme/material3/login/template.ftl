@@ -131,7 +131,8 @@
                 // something to paint. The flag makes it pick back up if we do
                 // land on a themed page again.
                 try { sessionStorage.setItem("m3-authing", String(Date.now())); } catch (err) { /* ignore */ }
-                document.documentElement.classList.add("m3-authing");
+                // -enter adds the fade; the flag alone (on arrival) shows it instantly.
+                document.documentElement.classList.add("m3-authing", "m3-authing-enter");
                 e.preventDefault();
                 requestAnimationFrame(() => requestAnimationFrame(() => { location.href = url.href; }));
                 return;
@@ -221,9 +222,11 @@
 </head>
 
 <body class="${properties.kcBodyClass!} ${bodyClass}" data-page-id="login-${(pageId)!''}">
+<#-- Same mark as the Account Console's boot loader, so the two overlays hand
+     over across the document swap without a visible jolt. -->
 <div id="m3-oidc-overlay" aria-hidden="true">
-    <div id="m3-oidc-spinner"></div>
-    <span>${msg("m3AuthingText")}</span>
+    <svg class="m3-loader" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke-width="4"/></svg>
+    <span class="m3-loader-label">${msg("m3AuthingText")}</span>
 </div>
 <div class="m3-shell">
     <#assign brandName = (realm.displayName!'')>

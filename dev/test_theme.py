@@ -27,6 +27,42 @@ AUTH_URL = (
 
 FAILURES = []
 
+# The login theme and the Account Console each render their own "signing you
+# in" overlay, and one hands over to the other across a document swap. Any
+# difference in the spinner or label reads as a jolt at the seam, so the login
+# side's measurements are captured here and compared against the console's.
+OVERLAY_SPEC = {}
+
+# What has to match for the handover to look like one continuous screen.
+OVERLAY_KEYS = ("loaderWidth", "loaderHeight", "stroke", "gap", "labelFont", "labelColor", "background")
+
+
+def measure_overlay(page, overlay_sel, loader_sel, label_sel):
+    return page.evaluate(
+        """([overlaySel, loaderSel, labelSel]) => {
+            const ov = document.querySelector(overlaySel);
+            const ld = document.querySelector(loaderSel);
+            const lb = document.querySelector(labelSel);
+            if (!ov || !ld || !lb) return null;
+            const o = getComputedStyle(ov), l = getComputedStyle(ld), t = getComputedStyle(lb);
+            const c = getComputedStyle(ld.querySelector('circle'));
+            return {
+                // Computed, not getBoundingClientRect: the spinner is mid-rotation
+                // and a rect would report the rotated square's axis-aligned box
+                // (44px reads as anything up to ~62px depending on the angle).
+                loaderWidth: l.width,
+                loaderHeight: l.height,
+                stroke: c.stroke,
+                gap: o.rowGap,
+                labelFont: t.fontSize + '/' + t.fontWeight,
+                labelColor: t.color,
+                background: o.backgroundColor,
+                animation: l.animationName + ' ' + l.animationDuration,
+            };
+        }""",
+        [overlay_sel, loader_sel, label_sel],
+    )
+
 
 def check(name, cond, detail=""):
     status = "PASS" if cond else "FAIL"
@@ -194,14 +230,37 @@ def test_oidc_bridge_overlay(browser):
                 flag: sessionStorage.getItem('m3-authing') !== null,
                 display: cs.display,
                 opacity: cs.opacity,
+                animation: cs.animationName,
+                duration: cs.animationDuration,
             };
         }"""
     )
     check("oidc bridge: clicking a provider arms the flag", departure["flag"])
     check(
         "oidc bridge: overlay covers the departure, not just the return",
-        departure["display"] == "flex" and departure["opacity"] == "1",
+        departure["display"] == "flex",
         repr(departure),
+    )
+    # Leaving is a fade over the card that's still on screen, not a hard cut,
+    # so opacity legitimately starts at 0 here — the navigation is already in
+    # flight and this document keeps rendering until the response commits.
+    check(
+        "oidc bridge: the departure fades in",
+        departure["animation"] == "m3-oidc-in" and departure["duration"] not in ("0s", "none"),
+        repr(departure),
+    )
+    ctx.close()
+
+    # …and that fade must actually land on a fully opaque overlay.
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900})
+    page = ctx.new_page()
+    page.goto(login_url("en"))
+    page.wait_for_selector("#kc-page-title", timeout=20000)
+    page.evaluate("document.documentElement.classList.add('m3-authing', 'm3-authing-enter')")
+    page.wait_for_timeout(400)
+    check(
+        "oidc bridge: the fade settles fully opaque",
+        page.evaluate("getComputedStyle(document.getElementById('m3-oidc-overlay')).opacity") == "1",
     )
     ctx.close()
 
@@ -224,6 +283,20 @@ def test_oidc_bridge_overlay(browser):
         "oidc bridge: overlay text present",
         "Signing you in" in page.locator("#m3-oidc-overlay").inner_text(),
     )
+    # Arriving is a cut, not a fade — the overlay is covering a blank here, so
+    # fading in would reintroduce exactly the flash it exists to hide.
+    check(
+        "oidc bridge: the arrival does not fade",
+        page.evaluate(
+            "getComputedStyle(document.getElementById('m3-oidc-overlay')).animationName"
+        ) == "none",
+    )
+    # Captured for the handover-parity check in test_oidc_bridge_account_landing.
+    OVERLAY_SPEC.update(
+        measure_overlay(page, "#m3-oidc-overlay", "#m3-oidc-overlay .m3-loader", "#m3-oidc-overlay .m3-loader-label")
+        or {}
+    )
+    check("oidc bridge: login overlay measurable", bool(OVERLAY_SPEC))
     page.wait_for_timeout(900)
     check(
         "oidc bridge: overlay clears itself and the flag",
@@ -257,7 +330,8 @@ def test_oidc_bridge_overlay(browser):
     page.goto(login_url("en"), wait_until="domcontentloaded")
     check(
         "oidc bridge: reduced motion kills the spinner animation",
-        page.evaluate("getComputedStyle(document.getElementById('m3-oidc-spinner')).animationName") == "none",
+        page.evaluate("getComputedStyle(document.querySelector('#m3-oidc-overlay .m3-loader')).animationName")
+        == "none",
     )
     ctx.close()
 
@@ -285,6 +359,17 @@ def test_oidc_bridge_account_landing(browser):
             "(document.querySelector('.m3-loader-label'))"
         ),
     )
+
+    # The seam: this overlay replaces the login theme's one across a document
+    # swap, so every visible property has to match or the handover jolts.
+    console_spec = measure_overlay(page, ".m3-loader-overlay", ".m3-loader", ".m3-loader-label")
+    if not OVERLAY_SPEC or not console_spec:
+        check("oidc bridge: overlays match across the handover", False, "could not measure both overlays")
+    else:
+        diffs = [f"{k}: login={OVERLAY_SPEC[k]!r} console={console_spec[k]!r}"
+                 for k in OVERLAY_KEYS if OVERLAY_SPEC.get(k) != console_spec.get(k)]
+        check("oidc bridge: overlays match across the handover", not diffs, "; ".join(diffs))
+
     page.wait_for_selector(".m3-rail", timeout=25000)
     page.wait_for_timeout(500)
     check(

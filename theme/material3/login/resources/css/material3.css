@@ -226,7 +226,13 @@ body.m3-exit .m3-card {
    whatever loads next — this page again, or the account console — instead
    of a blank/half-drawn page in the meantime. Hidden by default; only
    `html.m3-authing` (set by an inline head script, before first paint)
-   shows it, so it never flashes on an ordinary page load. */
+   shows it, so it never flashes on an ordinary page load.
+
+   The spinner, its size, the gap and the label below must stay byte-for-byte
+   identical to the Account Console's boot loader (.m3-loader in
+   material3-account.css) — the two overlays hand over to each other across a
+   document swap, and any difference in the mark reads as a visible jolt at
+   the seam rather than one continuous wait. */
 #m3-oidc-overlay {
   display: none;
   position: fixed;
@@ -242,18 +248,38 @@ body.m3-exit .m3-card {
 }
 html.m3-authing #m3-oidc-overlay { display: flex; }
 #m3-oidc-overlay.m3-oidc-hide { opacity: 0; pointer-events: none; }
-#m3-oidc-spinner {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 4px solid var(--m3-secondary-container);
-  border-top-color: var(--m3-primary);
-  animation: m3-oidc-spin .8s linear infinite;
+
+/* On the way out the card is still on screen, so the overlay fades over it;
+   the navigation is already in flight, and the browser keeps rendering this
+   document until the response commits, so the fade has time to play. On
+   arrival the overlay is covering a blank instead, where any fade would be
+   the flash we're trying to remove — hence the separate opt-in class. */
+html.m3-authing-enter #m3-oidc-overlay {
+  animation: m3-oidc-in .22s cubic-bezier(.2, 0, 0, 1);
 }
-@keyframes m3-oidc-spin {
-  to { transform: rotate(360deg); }
+@keyframes m3-oidc-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
-#m3-oidc-overlay span {
+
+.m3-loader {
+  width: 44px;
+  height: 44px;
+  animation: m3-rot 1.4s linear infinite;
+}
+.m3-loader circle {
+  stroke: var(--m3-primary);
+  stroke-linecap: round;
+  animation: m3-dash 1.3s ease-in-out infinite;
+}
+@keyframes m3-rot { to { transform: rotate(360deg); } }
+@keyframes m3-dash {
+  0%   { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
+  50%  { stroke-dasharray: 90, 200; stroke-dashoffset: -30; }
+  100% { stroke-dasharray: 90, 200; stroke-dashoffset: -113; }
+}
+
+.m3-loader-label {
   font: 500 15px/1.4 "Google Sans Text", "Roboto", system-ui, sans-serif;
   color: var(--m3-on-surface-variant);
 }

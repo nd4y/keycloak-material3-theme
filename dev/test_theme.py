@@ -310,6 +310,17 @@ def test_account_console(browser):
         placeholder,
     )
     check(
+        "account: no divider line between filter field and its button",
+        page.evaluate(
+            """[...document.querySelectorAll('.pf-v5-c-input-group__item')]
+                 .every(it => {
+                   const cs = getComputedStyle(it);
+                   return [cs.borderLeftWidth, cs.borderRightWidth, cs.borderTopWidth, cs.borderBottomWidth]
+                     .every(w => w === '0px');
+                 })"""
+        ),
+    )
+    check(
         "account: search arrow centered in its round button",
         page.evaluate(
             """(() => {

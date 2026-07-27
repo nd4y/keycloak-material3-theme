@@ -694,6 +694,13 @@ h1, h2, h3 {
   color: var(--m3-on-primary-container);
 }
 
+/* PF separates input-group items (the filter field and its button) with a
+   1px border — a stray vertical line next to the detached M3 search bar. */
+.pf-v5-c-input-group__item,
+.pf-v5-theme-dark .pf-v5-c-input-group__item {
+  border: 0;
+}
+
 /* Search / filter inputs in toolbars → M3 filled search bar */
 .pf-v5-c-text-input-group,
 .pf-v5-theme-dark .pf-v5-c-text-input-group {

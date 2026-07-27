@@ -859,14 +859,21 @@ h1, h2, h3 {
   inset: 0;
   z-index: 10000;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 16px;
   background: var(--m3-surface);
   transition: opacity .3s ease;
   /* purely visual — must never trap clicks, whatever happens to its removal */
   pointer-events: none;
 }
 .m3-loader-overlay.m3-loader-hide { opacity: 0; }
+
+.m3-loader-label {
+  font: 500 15px/1.4 "Google Sans Text", "Roboto", system-ui, sans-serif;
+  color: var(--m3-on-surface-variant);
+}
 
 .m3-loader {
   width: 44px;

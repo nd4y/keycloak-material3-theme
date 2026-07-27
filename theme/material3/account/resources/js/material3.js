@@ -232,21 +232,50 @@ function initTheme(msgsPromise) {
 
 /* ── loading overlay ─────────────────────────────────────────────────────
    Covers the app while React boots and the rail is being built, so the page
-   appears fully assembled instead of popping in piece by piece. ── */
+   appears fully assembled instead of popping in piece by piece.
+
+   An external identity provider (Google etc.) can land the browser straight
+   back here — skipping the login theme entirely when Keycloak's broker
+   already knows the account — after a server-side round trip (token
+   exchange, then a redirect) that takes a visible moment. The login theme
+   arms a sessionStorage flag before departure (see template.ftl); if it's
+   still here (and fresh) we add a "Signing you in…" label to this same
+   overlay instead of a bare spinner, so the bridge from click to landing
+   reads as one continuous, branded wait rather than two separate flashes. ── */
 
 let hideLoader = () => {};
 
-function initLoader() {
+function oidcAuthingFlag() {
+  try {
+    const v = sessionStorage.getItem("m3-authing");
+    if (v && Date.now() - parseInt(v, 10) < 60000) return true;
+    if (v) sessionStorage.removeItem("m3-authing");
+  } catch (e) { /* storage unavailable */ }
+  return false;
+}
+
+function initLoader(msgsPromise) {
   const ov = document.createElement("div");
   ov.className = "m3-loader-overlay";
   ov.setAttribute("aria-hidden", "true");
   ov.innerHTML =
     '<svg class="m3-loader" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke-width="4"/></svg>';
+  const authing = oidcAuthingFlag();
+  if (authing) {
+    const label = document.createElement("span");
+    label.className = "m3-loader-label";
+    label.textContent = document.documentElement.lang === "ru" ? "Выполняется вход…" : "Signing you in…";
+    ov.appendChild(label);
+    msgsPromise.then((m) => { if (m.m3AuthingText) label.textContent = m.m3AuthingText; });
+  }
   document.body.appendChild(ov);
   let hidden = false;
   hideLoader = () => {
     if (hidden) return;
     hidden = true;
+    if (authing) {
+      try { sessionStorage.removeItem("m3-authing"); } catch (e) { /* ignore */ }
+    }
     ov.classList.add("m3-loader-hide");
     setTimeout(() => ov.remove(), 400);
   };
@@ -486,8 +515,8 @@ function initUserButton() {
 
 function init() {
   initFavicon(); // again: stock <link rel="icon"> may appear after our script tag
-  initLoader();
-  const msgsPromise = fetchM3Messages(); // shared: nav labels + theme-menu labels
+  const msgsPromise = fetchM3Messages(); // shared: nav labels + theme-menu + authing labels
+  initLoader(msgsPromise);
   initTheme(msgsPromise);
   initRail(msgsPromise);
   initBrand();

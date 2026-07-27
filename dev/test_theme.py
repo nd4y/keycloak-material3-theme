@@ -248,6 +248,46 @@ def test_oidc_bridge_overlay(browser):
     ctx.close()
 
 
+def test_oidc_bridge_account_landing(browser):
+    """A linked identity provider can return the browser straight to the
+    account console, skipping the login theme entirely — the flag has to be
+    honored there too (see account/resources/js/material3.js initLoader)."""
+    ctx = browser.new_context(viewport={"width": 1440, "height": 900}, locale="en")
+    page = ctx.new_page()
+    page.goto(f"{BASE}/realms/demo/account/")
+    page.wait_for_selector("#kc-page-title", timeout=20000)
+    page.evaluate("document.querySelector('details.m3-pass-details').open = true")
+    page.fill("#username", "demo")
+    page.fill("#password", "demo1234")
+    page.click("#kc-login")
+    page.wait_for_selector(".m3-rail", timeout=25000)
+
+    page.evaluate("sessionStorage.setItem('m3-authing', String(Date.now()))")
+    page.goto(f"{BASE}/realms/demo/account/", wait_until="domcontentloaded")
+    check(
+        "oidc bridge (account landing): loader label shown",
+        page.evaluate(
+            "(el => !!el && el.textContent.includes('Signing you in'))"
+            "(document.querySelector('.m3-loader-label'))"
+        ),
+    )
+    page.wait_for_selector(".m3-rail", timeout=25000)
+    page.wait_for_timeout(500)
+    check(
+        "oidc bridge (account landing): overlay and flag clear",
+        page.evaluate("!document.querySelector('.m3-loader-overlay')")
+        and page.evaluate("sessionStorage.getItem('m3-authing')") is None,
+    )
+
+    # A normal load (no flag) must not show any label.
+    page.goto(f"{BASE}/realms/demo/account/", wait_until="domcontentloaded")
+    check(
+        "oidc bridge (account landing): no label on an ordinary load",
+        page.evaluate("!document.querySelector('.m3-loader-label')"),
+    )
+    ctx.close()
+
+
 def test_webauthn_error_message(browser):
     """Regression for upstream RU mistranslation: a failed passkey attempt must
     not claim a *password* failure."""
@@ -784,6 +824,7 @@ def main():
         test_webauthn_error_message(browser)
         test_register_page(browser)
         test_account_console(browser)
+        test_oidc_bridge_account_landing(browser)
         test_motion(browser)
         test_forced_light_on_dark_system(browser)
         browser.close()

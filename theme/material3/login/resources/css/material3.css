@@ -219,6 +219,45 @@ body.m3-exit .m3-card {
   to { opacity: 0; transform: translateY(-8px); }
 }
 
+/* ── Sign-in bridge overlay ──────────────────────────────────────────────
+   An external identity provider (Google etc.) round-trips through pages we
+   don't control and a server-side token exchange, which can take a visible
+   moment. A flag set right before leaving keeps this overlay on top of
+   whatever loads next — this page again, or the account console — instead
+   of a blank/half-drawn page in the meantime. Hidden by default; only
+   `html.m3-authing` (set by an inline head script, before first paint)
+   shows it, so it never flashes on an ordinary page load. */
+#m3-oidc-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--m3-surface);
+  opacity: 1;
+  transition: opacity .25s ease;
+}
+html.m3-authing #m3-oidc-overlay { display: flex; }
+#m3-oidc-overlay.m3-oidc-hide { opacity: 0; pointer-events: none; }
+#m3-oidc-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid var(--m3-secondary-container);
+  border-top-color: var(--m3-primary);
+  animation: m3-oidc-spin .8s linear infinite;
+}
+@keyframes m3-oidc-spin {
+  to { transform: rotate(360deg); }
+}
+#m3-oidc-overlay span {
+  font: 500 15px/1.4 "Google Sans Text", "Roboto", system-ui, sans-serif;
+  color: var(--m3-on-surface-variant);
+}
+
 @media (min-width: 940px) {
   .m3-brand { flex-basis: 44%; }
   .m3-main { background: var(--m3-surface); }

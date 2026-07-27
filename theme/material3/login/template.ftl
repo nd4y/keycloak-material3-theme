@@ -19,6 +19,18 @@
                 var t = localStorage.getItem("m3-theme");
                 if (t === "light" || t === "dark") document.documentElement.setAttribute("data-m3-theme", t);
             } catch (e) { /* storage unavailable */ }
+            try {
+                // Set right before leaving for an external identity provider (see
+                // the click handler below); survives the round trip since
+                // sessionStorage is scoped to the tab, not the page. Stale after
+                // 60s so a flag can never haunt an unrelated later visit.
+                var a = sessionStorage.getItem("m3-authing");
+                if (a && (Date.now() - parseInt(a, 10)) < 60000) {
+                    document.documentElement.classList.add("m3-authing");
+                } else if (a) {
+                    sessionStorage.removeItem("m3-authing");
+                }
+            } catch (e) { /* storage unavailable */ }
         })();
     </script>
     <title>${msg("loginTitle",(realm.displayName!''))}</title>
@@ -106,6 +118,14 @@
             let url;
             try { url = new URL(a.href, location.href); } catch (err) { return; }
             if (url.origin !== location.origin || !/^https?:$/.test(url.protocol)) return;
+            if (a.classList.contains("m3-social-btn")) {
+                // About to be handed off to Google/GitHub/etc. and back — the
+                // return trip (server-side token exchange, then a redirect back
+                // here or straight to the account console) can take a visible
+                // moment. Flag it so whatever loads next shows the bridge
+                // overlay instead of a blank page.
+                try { sessionStorage.setItem("m3-authing", String(Date.now())); } catch (err) { /* ignore */ }
+            }
             e.preventDefault();
             document.body.classList.add("m3-exit");
             setTimeout(() => { location.href = url.href; }, 170);
@@ -165,9 +185,36 @@
             );
         </script>
     </#if>
+    <script>
+        (function () {
+            if (!document.documentElement.classList.contains("m3-authing")) return;
+            var hidden = false;
+            var hide = function () {
+                if (hidden) return;
+                hidden = true;
+                try { sessionStorage.removeItem("m3-authing"); } catch (e) { /* ignore */ }
+                document.documentElement.classList.remove("m3-authing");
+                var ov = document.getElementById("m3-oidc-overlay");
+                if (ov) {
+                    ov.classList.add("m3-oidc-hide");
+                    setTimeout(function () { ov.remove(); }, 300);
+                }
+            };
+            // A brief minimum display avoids a one-frame flash on fast
+            // responses; a failsafe guarantees the user is never stuck behind it.
+            var reveal = function () { setTimeout(hide, 220); };
+            if (document.readyState === "complete") reveal();
+            else addEventListener("load", reveal);
+            setTimeout(hide, 6000);
+        })();
+    </script>
 </head>
 
 <body class="${properties.kcBodyClass!} ${bodyClass}" data-page-id="login-${(pageId)!''}">
+<div id="m3-oidc-overlay" aria-hidden="true">
+    <div id="m3-oidc-spinner"></div>
+    <span>${msg("m3AuthingText")}</span>
+</div>
 <div class="m3-shell">
     <#assign brandName = (realm.displayName!'')>
     <aside class="m3-brand" aria-hidden="true">

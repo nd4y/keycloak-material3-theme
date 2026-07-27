@@ -164,6 +164,90 @@ def test_login_pages(browser):
         ctx.close()
 
 
+def test_oidc_bridge_overlay(browser):
+    """The full round trip through an external IdP can't be driven in tests
+    (it needs a real provider), so this exercises the two halves of the
+    mechanism directly: clicking a provider button arms the flag, and a page
+    load that finds the flag set shows the bridge overlay and clears it."""
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900})
+    page = ctx.new_page()
+    page.goto(login_url("en"))
+    page.wait_for_selector("#kc-page-title", timeout=20000)
+    check(
+        "oidc bridge: overlay absent on a normal load",
+        page.evaluate(
+            "(el => !el || getComputedStyle(el).display === 'none')"
+            "(document.getElementById('m3-oidc-overlay'))"
+        ),
+    )
+    check("oidc bridge: no flag before any click", page.evaluate("sessionStorage.getItem('m3-authing')") is None)
+
+    social = page.locator(".m3-social-btn").first
+    social.click()
+    page.wait_for_timeout(80)
+    check(
+        "oidc bridge: clicking a provider arms the flag",
+        page.evaluate("sessionStorage.getItem('m3-authing')") is not None,
+    )
+    ctx.close()
+
+    # Simulate the return trip: a fresh navigation that finds the flag set
+    # (as it would after the browser comes back from the external provider).
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900})
+    page = ctx.new_page()
+    page.goto(login_url("en"))
+    page.wait_for_selector("#kc-page-title", timeout=20000)
+    page.evaluate("sessionStorage.setItem('m3-authing', String(Date.now()))")
+    page.goto(login_url("en"), wait_until="domcontentloaded")
+    check(
+        "oidc bridge: overlay shows immediately when the flag is set",
+        page.evaluate(
+            "(el => !!el && getComputedStyle(el).display === 'flex' && getComputedStyle(el).opacity === '1')"
+            "(document.getElementById('m3-oidc-overlay'))"
+        ),
+    )
+    check(
+        "oidc bridge: overlay text present",
+        "Signing you in" in page.locator("#m3-oidc-overlay").inner_text(),
+    )
+    page.wait_for_timeout(900)
+    check(
+        "oidc bridge: overlay clears itself and the flag",
+        page.evaluate("!document.getElementById('m3-oidc-overlay')")
+        and page.evaluate("sessionStorage.getItem('m3-authing')") is None,
+    )
+    ctx.close()
+
+    # A stale flag (older than the 60s window) must be ignored, not shown.
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900})
+    page = ctx.new_page()
+    page.goto(login_url("en"))
+    page.wait_for_selector("#kc-page-title", timeout=20000)
+    page.evaluate("sessionStorage.setItem('m3-authing', String(Date.now() - 120000))")
+    page.goto(login_url("en"), wait_until="domcontentloaded")
+    check(
+        "oidc bridge: a stale flag is ignored",
+        page.evaluate(
+            "(el => !el || getComputedStyle(el).display === 'none')"
+            "(document.getElementById('m3-oidc-overlay'))"
+        ),
+    )
+    ctx.close()
+
+    # Reduced motion still communicates loading (text) but doesn't spin.
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900}, reduced_motion="reduce")
+    page = ctx.new_page()
+    page.goto(login_url("en"))
+    page.wait_for_selector("#kc-page-title", timeout=20000)
+    page.evaluate("sessionStorage.setItem('m3-authing', String(Date.now()))")
+    page.goto(login_url("en"), wait_until="domcontentloaded")
+    check(
+        "oidc bridge: reduced motion kills the spinner animation",
+        page.evaluate("getComputedStyle(document.getElementById('m3-oidc-spinner')).animationName") == "none",
+    )
+    ctx.close()
+
+
 def test_webauthn_error_message(browser):
     """Regression for upstream RU mistranslation: a failed passkey attempt must
     not claim a *password* failure."""
@@ -696,6 +780,7 @@ def main():
     with sync_playwright() as p:
         browser = p.chromium.launch()
         test_login_pages(browser)
+        test_oidc_bridge_overlay(browser)
         test_webauthn_error_message(browser)
         test_register_page(browser)
         test_account_console(browser)

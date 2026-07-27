@@ -78,8 +78,8 @@ Keycloak: это обычный каталог темы (или компактн
 | ![Кабинет, светлая тема](docs/account-light.png) | ![Кабинет, тёмная тема](docs/account-dark.png) |
 
 <p align="center">
-  <img src="docs/login-dark.png" alt="Страница входа, тёмная тема" width="68%">
-  <img src="docs/login-mobile.png" alt="Страница входа, мобильная" width="24%">
+  <img src="docs/login-dark.png" alt="Страница входа, тёмная тема" width="68%" align="top">
+  <img src="docs/login-mobile.png" alt="Страница входа, мобильная" width="24%" align="top">
 </p>
 
 ## Совместимость

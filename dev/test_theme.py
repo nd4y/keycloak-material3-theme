@@ -540,6 +540,15 @@ def test_account_console(browser):
         page.locator(".pf-v5-c-menu").count() > 0
         and page.locator(".pf-v5-c-menu").first.is_visible(),
     )
+    # PF paints the menu <li> with its own opaque square background; in dark
+    # it's a lighter box with 0 radius poking out of the rounded menu (in
+    # light it merely hides inside a near-identical shade — check both ways).
+    check(
+        "account: menu list item paints no square background",
+        page.evaluate(
+            "getComputedStyle(document.querySelector('.pf-v5-c-menu__list-item')).backgroundColor"
+        ) == "rgba(0, 0, 0, 0)",
+    )
     check(
         "account: expanded toggle stays an avatar (no pill text)",
         page.evaluate(

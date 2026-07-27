@@ -669,6 +669,14 @@ h1, h2, h3 {
   box-shadow: 0 6px 22px rgba(0, 0, 0, .22);
 }
 .pf-v5-c-menu__list { padding: 6px; }
+/* PF paints the <li> itself with an opaque square background. In light it
+   happens to sit within a shade of the menu surface and disappears; in dark
+   it's a visibly lighter box with 0 radius poking out of the rounded menu.
+   The highlight belongs to the rounded __item button alone. */
+.pf-v5-c-menu__list-item,
+.pf-v5-theme-dark .pf-v5-c-menu__list-item {
+  background: transparent;
+}
 .pf-v5-c-menu__item,
 .pf-v5-theme-dark .pf-v5-c-menu__item {
   border-radius: 14px;

@@ -182,12 +182,26 @@ def test_oidc_bridge_overlay(browser):
     )
     check("oidc bridge: no flag before any click", page.evaluate("sessionStorage.getItem('m3-authing')") is None)
 
-    social = page.locator(".m3-social-btn").first
-    social.click()
-    page.wait_for_timeout(80)
+    # The handler navigates two animation frames after the click, so read the
+    # resulting state synchronously in one evaluate() — a round trip here would
+    # race the navigation and lose the window entirely.
+    departure = page.evaluate(
+        """() => {
+            document.querySelector('.m3-social-btn').click();
+            const el = document.getElementById('m3-oidc-overlay');
+            const cs = getComputedStyle(el);
+            return {
+                flag: sessionStorage.getItem('m3-authing') !== null,
+                display: cs.display,
+                opacity: cs.opacity,
+            };
+        }"""
+    )
+    check("oidc bridge: clicking a provider arms the flag", departure["flag"])
     check(
-        "oidc bridge: clicking a provider arms the flag",
-        page.evaluate("sessionStorage.getItem('m3-authing')") is not None,
+        "oidc bridge: overlay covers the departure, not just the return",
+        departure["display"] == "flex" and departure["opacity"] == "1",
+        repr(departure),
     )
     ctx.close()
 

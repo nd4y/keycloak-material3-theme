@@ -119,12 +119,22 @@
             try { url = new URL(a.href, location.href); } catch (err) { return; }
             if (url.origin !== location.origin || !/^https?:$/.test(url.protocol)) return;
             if (a.classList.contains("m3-social-btn")) {
-                // About to be handed off to Google/GitHub/etc. and back — the
-                // return trip (server-side token exchange, then a redirect back
-                // here or straight to the account console) can take a visible
-                // moment. Flag it so whatever loads next shows the bridge
-                // overlay instead of a blank page.
+                // Handing off to Google/GitHub/etc. and back — Keycloak's own
+                // broker/login redirect step and the eventual return trip
+                // (server-side token exchange, then a redirect here or straight
+                // to the account console) can both take a visible moment, with
+                // nothing of ours on screen to fill it. Show the bridge overlay
+                // right now, before the card even has a chance to fade, so it
+                // covers the whole hand-off instead of just the return half;
+                // most browsers keep the last painted frame — this overlay —
+                // through same-origin redirect hops until the next page has
+                // something to paint. The flag makes it pick back up if we do
+                // land on a themed page again.
                 try { sessionStorage.setItem("m3-authing", String(Date.now())); } catch (err) { /* ignore */ }
+                document.documentElement.classList.add("m3-authing");
+                e.preventDefault();
+                requestAnimationFrame(() => requestAnimationFrame(() => { location.href = url.href; }));
+                return;
             }
             e.preventDefault();
             document.body.classList.add("m3-exit");

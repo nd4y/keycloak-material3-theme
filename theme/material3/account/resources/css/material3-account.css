@@ -833,25 +833,56 @@ h1, h2, h3 {
    (from keycloak.v3 index.ftl) and our own overlay that keeps the app
    covered until it is fully assembled. ── */
 
+/* Boot loader — the static HTML shown before any of the console's JS runs.
+   Restyle its stock PF spinner into the same 44px primary arc as .m3-loader
+   below: during an OIDC landing this wheel appears between the login theme's
+   overlay and ours, and any difference in mark or color reads as a visible
+   swap mid-wait. Its viewBox is 100 (r=45, C≈283) against .m3-loader's 48
+   (r=18, C≈113), so the dash keyframes are the same phases scaled ×2.5 and
+   the stroke-width is 4/48 of the box. */
 .keycloak__loading-container {
   background: var(--m3-surface) !important;
   color: var(--m3-on-surface) !important;
+  gap: 16px;
 }
-.keycloak__loading-container .pf-v5-c-spinner { display: none; }
-.keycloak__loading-container::before {
+.keycloak__loading-container .pf-v5-c-spinner {
+  width: 44px;
+  height: 44px;
+  animation: m3-rot 1.4s linear infinite;
+}
+.keycloak__loading-container .pf-v5-c-spinner__path {
+  stroke: var(--m3-primary);
+  stroke-width: 8.4px;
+  stroke-linecap: round;
+  animation: m3-dash-100 1.3s ease-in-out infinite;
+}
+@keyframes m3-dash-100 {
+  0%   { stroke-dasharray: 2.5, 500; stroke-dashoffset: 0; }
+  50%  { stroke-dasharray: 225, 500; stroke-dashoffset: -75; }
+  100% { stroke-dasharray: 225, 500; stroke-dashoffset: -282; }
+}
+/* KC 26.0 ships the span-based PF v4 spinner here instead of the SVG one.
+   Its ball-and-clipper markup can't be restyled into an arc, so hide it and
+   draw the same 44px primary arc with a masked conic-gradient. :has() keeps
+   this off 26.1+, where the SVG above is the one and only wheel. */
+.keycloak__loading-container .pf-c-spinner { display: none; }
+.keycloak__loading-container:has(.pf-c-spinner)::before {
   content: "";
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 4px solid var(--m3-secondary-container);
-  border-top-color: var(--m3-primary);
-  animation: m3-rot 1s linear infinite;
+  background: conic-gradient(var(--m3-primary) 0 115deg, transparent 115deg 360deg);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3.7px), #000 calc(100% - 3.2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3.7px), #000 calc(100% - 3.2px));
+  animation: m3-rot 1.4s linear infinite;
 }
+/* Match .m3-loader-label, so the boot text hands over to the overlay's label
+   in place; the container's 16px gap replaces the stock padding. */
 #loading-text {
-  font-size: 15px !important;
-  font-weight: 500 !important;
+  font: 500 15px/1.4 "Google Sans Text", "Roboto", system-ui, sans-serif !important;
   color: var(--m3-on-surface-variant) !important;
-  padding-top: 24px !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .m3-loader-overlay {

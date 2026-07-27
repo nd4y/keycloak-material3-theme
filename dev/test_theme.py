@@ -378,6 +378,51 @@ def test_oidc_bridge_account_landing(browser):
         and page.evaluate("sessionStorage.getItem('m3-authing')") is None,
     )
 
+    # The stock boot loader (static HTML, painted before any console JS) is
+    # the third wheel in the OIDC chain: login overlay → boot loader → console
+    # overlay. Recreate its markup and hold it to the same spec — a different
+    # mark or color there reads as a swap mid-wait.
+    boot = page.evaluate(
+        """() => {
+            const d = document.createElement('div');
+            d.className = 'keycloak__loading-container';
+            d.innerHTML = '<svg class="pf-v5-c-spinner pf-m-xl" viewBox="0 0 100 100">'
+                + '<circle class="pf-v5-c-spinner__path" cx="50" cy="50" r="45" fill="none"></circle></svg>'
+                + '<div><p id="loading-text">Loading</p></div>';
+            document.body.appendChild(d);
+            const sp = getComputedStyle(d.querySelector('.pf-v5-c-spinner'));
+            const path = getComputedStyle(d.querySelector('.pf-v5-c-spinner__path'));
+            const txt = getComputedStyle(d.querySelector('#loading-text'));
+            const cont = getComputedStyle(d);
+            const out = {
+                loaderWidth: sp.width,
+                loaderHeight: sp.height,
+                stroke: path.stroke,
+                gap: cont.rowGap,
+                labelFont: txt.fontSize + '/' + txt.fontWeight,
+                labelColor: txt.color,
+                background: cont.backgroundColor,
+                linecap: path.strokeLinecap,
+                rot: sp.animationName + ' ' + sp.animationDuration,
+                dash: path.animationName + ' ' + path.animationDuration,
+            };
+            d.remove();
+            return out;
+        }"""
+    )
+    if not OVERLAY_SPEC or not boot:
+        check("oidc bridge: boot loader matches the overlays", False, "could not measure")
+    else:
+        diffs = [f"{k}: login={OVERLAY_SPEC[k]!r} boot={boot[k]!r}"
+                 for k in OVERLAY_KEYS if OVERLAY_SPEC.get(k) != boot.get(k)]
+        if boot["linecap"] != "round":
+            diffs.append(f"linecap: {boot['linecap']!r}")
+        if boot["rot"] != "m3-rot 1.4s":
+            diffs.append(f"rot: {boot['rot']!r}")
+        if boot["dash"] != "m3-dash-100 1.3s":
+            diffs.append(f"dash: {boot['dash']!r}")
+        check("oidc bridge: boot loader matches the overlays", not diffs, "; ".join(diffs))
+
     # A normal load (no flag) must not show any label.
     page.goto(f"{BASE}/realms/demo/account/", wait_until="domcontentloaded")
     check(

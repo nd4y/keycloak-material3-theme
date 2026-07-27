@@ -657,10 +657,13 @@ h1, h2, h3 {
 .pf-v5-c-alert { border-radius: 16px; }
 .pf-v5-c-modal-box { border-radius: 28px; }
 
-/* Dropdown menus (user menu etc.) → M3 menu surface with rounded items */
+/* Dropdown menus (user menu etc.) → M3 menu surface with rounded items.
+   The user menu often holds a single short item (e.g. "Sign out"), so a
+   modest radius reads as barely-rounded next to the fully circular avatar
+   above it — go generous enough that it unmistakably reads as rounded. */
 .pf-v5-c-menu,
 .pf-v5-theme-dark .pf-v5-c-menu {
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
   background: var(--m3-surface-c2);
   box-shadow: 0 6px 22px rgba(0, 0, 0, .22);
@@ -668,7 +671,7 @@ h1, h2, h3 {
 .pf-v5-c-menu__list { padding: 6px; }
 .pf-v5-c-menu__item,
 .pf-v5-theme-dark .pf-v5-c-menu__item {
-  border-radius: 10px;
+  border-radius: 14px;
   color: var(--m3-on-surface);
 }
 .pf-v5-c-menu__item:hover,

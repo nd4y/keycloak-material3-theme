@@ -73,10 +73,12 @@ carrier image) mounted into the official Keycloak image.
 |---|---|
 | ![Account light](docs/account-light.png) | ![Account dark](docs/account-dark.png) |
 
-<p align="center">
-  <img src="docs/login-dark.png" alt="Login page, dark" width="68%" align="top">
-  <img src="docs/login-mobile.png" alt="Login page, mobile" width="24%" align="top">
-</p>
+<table>
+<tr>
+<td width="68%" valign="top"><img src="docs/login-dark.png" alt="Login page, dark" width="100%"></td>
+<td width="32%" valign="top"><img src="docs/login-mobile.png" alt="Login page, mobile" width="100%"></td>
+</tr>
+</table>
 
 ## Compatibility
 

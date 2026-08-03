@@ -1,6 +1,6 @@
 # Keycloak Material 3 Theme
 
-[English](README.md) | **Русский**
+[🇬🇧 English](README.md) | 🇷🇺 **Русский**
 
 ![Material 3 Expressive для Keycloak](docs/hero.png)
 

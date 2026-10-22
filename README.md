@@ -69,8 +69,8 @@ carrier image) mounted into the official Keycloak image.
   "sign in with a provider first, add a passkey later" flow to end users, and its text is
   overridable per realm.
 
-| Account Console | |
-|---|---|
+| Account Console                          |                                        |
+| ---------------------------------------- | -------------------------------------- |
 | ![Account light](docs/account-light.png) | ![Account dark](docs/account-dark.png) |
 
 <table>
@@ -110,7 +110,7 @@ services:
   theme:
     image: ghcr.io/nd4y/keycloak-material3-theme:latest
     restart: "no"
-    network_mode: "none"   # it only copies files — no network needed
+    network_mode: "none" # it only copies files — no network needed
     volumes:
       - material3-theme:/target
 
@@ -167,9 +167,9 @@ Everything below is realm/server configuration — the theme itself needs no bui
 
 **Realm settings → Themes**:
 
-- *Login theme* → `material3`
-- *Account theme* → `material3`
-- leave *Admin theme* as is (the Admin Console is intentionally not themed).
+- _Login theme_ → `material3`
+- _Account theme_ → `material3`
+- leave _Admin theme_ as is (the Admin Console is intentionally not themed).
 
 Themes are cached in production mode; restart Keycloak after updating theme files
 (not needed when only switching the realm setting).
@@ -178,8 +178,8 @@ Themes are cached in production mode; restart Keycloak after updating theme file
 
 **Realm settings → Localization**:
 
-- *Internationalization* → Enabled
-- *Supported locales* → English, Русский (plus any others — the theme's own strings exist
+- _Internationalization_ → Enabled
+- _Supported locales_ → English, Русский (plus any others — the theme's own strings exist
   in en/ru; other locales fall back to Keycloak's stock translations)
 
 This also enables the language switcher on the login card.
@@ -196,19 +196,19 @@ The passkey button uses Keycloak's built-in passkeys support (preview in 26.x, n
    ```
 
 2. **Authentication → Policies → WebAuthn Passwordless Policy**:
-   - *Enable passkeys* → On
-   - recommended: *Requires discoverable credential* → Yes,
-     *User verification requirement* → required
+   - _Enable passkeys_ → On
+   - recommended: _Requires discoverable credential_ → Yes,
+     _User verification requirement_ → required
 
 3. Let users register a passkey: **Authentication → Required actions** → enable
-   *Webauthn Register Passwordless*, or users add one themselves in the Account Console
-   under *Account security → Signing in*.
+   _Webauthn Register Passwordless_, or users add one themselves in the Account Console
+   under _Account security → Signing in_.
 
-With the feature active, the login page renders the filled *Sign in with a passkey* button and
+With the feature active, the login page renders the filled _Sign in with a passkey_ button and
 also offers passkeys through the browser's username autofill (conditional UI). On older
 servers (or with the feature off) the theme degrades gracefully — the button simply is not
 rendered. Both the default browser flow and custom flows that keep the standard
-*Username Password Form* work.
+_Username Password Form_ work.
 
 ### 4. Identity providers
 
@@ -299,3 +299,7 @@ so without the bump browsers keep serving month-old cached assets.
 ## License
 
 [MIT](LICENSE) © [nd4y](https://github.com/nd4y)
+
+## Development standard
+
+This repository adopts version 0.4.0 of the shared development standard. Read the [English guide](docs/en/development-standard.md) or [Russian guide](docs/ru/development-standard.md). The local toolkit checks staged secrets, changed-file formatting and bilingual documentation before merge. Existing product CI remains in place. Adoption is in progress; product acceptance and legacy-document translation are recorded separately in .repo-policy.json.

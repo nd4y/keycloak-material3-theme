@@ -73,8 +73,8 @@ Keycloak: это обычный каталог темы (или компактн
   сценарий «сначала вход через провайдера, потом passkey», его текст переопределяется
   per-realm.
 
-| Личный кабинет | |
-|---|---|
+| Личный кабинет                                   |                                                |
+| ------------------------------------------------ | ---------------------------------------------- |
 | ![Кабинет, светлая тема](docs/account-light.png) | ![Кабинет, тёмная тема](docs/account-dark.png) |
 
 <table>
@@ -114,7 +114,7 @@ services:
   theme:
     image: ghcr.io/nd4y/keycloak-material3-theme:latest
     restart: "no"
-    network_mode: "none"   # образ только копирует файлы — сеть не нужна
+    network_mode: "none" # образ только копирует файлы — сеть не нужна
     volumes:
       - material3-theme:/target
 
@@ -171,9 +171,9 @@ Bare metal: скопируйте `theme/material3` в `/opt/keycloak/themes/mate
 
 **Realm settings → Themes**:
 
-- *Login theme* → `material3`
-- *Account theme* → `material3`
-- *Admin theme* оставьте как есть (консоль администратора намеренно не темизируется).
+- _Login theme_ → `material3`
+- _Account theme_ → `material3`
+- _Admin theme_ оставьте как есть (консоль администратора намеренно не темизируется).
 
 В production-режиме темы кэшируются; после обновления файлов темы перезапустите Keycloak
 (при простом переключении настройки рилма это не требуется).
@@ -182,8 +182,8 @@ Bare metal: скопируйте `theme/material3` в `/opt/keycloak/themes/mate
 
 **Realm settings → Localization**:
 
-- *Internationalization* → Enabled
-- *Supported locales* → English, Русский (и любые другие — собственные строки темы есть
+- _Internationalization_ → Enabled
+- _Supported locales_ → English, Русский (и любые другие — собственные строки темы есть
   в en/ru; остальные локали откатываются на штатные переводы Keycloak)
 
 Это же включает переключатель языка на карточке входа.
@@ -201,19 +201,19 @@ Bare metal: скопируйте `theme/material3` в `/opt/keycloak/themes/mate
    ```
 
 2. **Authentication → Policies → WebAuthn Passwordless Policy**:
-   - *Enable passkeys* → On
-   - рекомендуется: *Requires discoverable credential* → Yes,
-     *User verification requirement* → required
+   - _Enable passkeys_ → On
+   - рекомендуется: _Requires discoverable credential_ → Yes,
+     _User verification requirement_ → required
 
 3. Дайте пользователям зарегистрировать passkey: **Authentication → Required actions** →
-   включите *Webauthn Register Passwordless*, либо пользователи добавят его сами в
-   кабинете в разделе *Безопасность входа → Вход*.
+   включите _Webauthn Register Passwordless_, либо пользователи добавят его сами в
+   кабинете в разделе _Безопасность входа → Вход_.
 
-С активной функцией страница входа отображает залитую кнопку *Войти с passkey* и
+С активной функцией страница входа отображает залитую кнопку _Войти с passkey_ и
 дополнительно предлагает passkey через автозаполнение имени пользователя браузером
 (условный интерфейс). На старых серверах (или с выключенной функцией) тема деградирует
 корректно — кнопка просто не рендерится. Работают и стандартный browser flow, и
-кастомные flow, сохраняющие штатную форму *Username Password Form*.
+кастомные flow, сохраняющие штатную форму _Username Password Form_.
 
 ### 4. Провайдеры идентификации
 
@@ -307,3 +307,7 @@ CSS применяются по обновлению страницы. Скри�
 ## Лицензия
 
 [MIT](LICENSE) © [nd4y](https://github.com/nd4y)
+
+## Стандарт разработки
+
+Репозиторий подключает общий стандарт версии 0.4.0. См. [русское руководство](docs/ru/development-standard.md) и [English guide](docs/en/development-standard.md). Локальный пакет проверяет секреты подготовленного коммита, форматирование изменённых файлов и двуязычную документацию до merge. Проверки продукта сохраняются. Подключение продолжается; приёмка продукта и перевод прежней документации учитываются отдельно в .repo-policy.json.
